@@ -34,22 +34,36 @@ export default async function DealerDashboardPage() {
 
   // Get bookings for vehicles
   const vehicleIds = vehicles?.map(v => v.id) || []
-  const { data: bookings } = vehicleIds.length > 0
+  const { data: allBookings } = vehicleIds.length > 0
     ? await supabase
         .from('bookings')
         .select('*, vehicles(id, make, model, year)')
         .in('vehicle_id', vehicleIds)
         .order('created_at', { ascending: false })
-        .limit(10)
     : { data: null }
 
-  const activeBookings = bookings?.filter((b: any) => b.status === 'confirmed') || []
-  const totalRevenue = bookings?.reduce((sum: number, b: any) => {
+  // Get recent bookings for display (limit to 5)
+  const bookings = allBookings?.slice(0, 5) || []
+
+  const activeBookings = allBookings?.filter((b: any) => b.status === 'confirmed') || []
+  const totalRevenue = allBookings?.reduce((sum: number, b: any) => {
     if (b.status === 'confirmed' || b.status === 'completed') {
       return sum + (b.dealer_payout_amount_cents || 0) / 100
     }
     return sum
   }, 0) || 0
+
+  const activeVehicles = vehicles?.filter((v: any) => v.status === 'active') || []
+
+  const getBookingStatusClassName = (status: string) => {
+    if (status === 'confirmed') {
+      return 'px-2 py-1 text-xs font-semibold rounded capitalize bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green-light'
+    }
+    if (status === 'pending_payment') {
+      return 'px-2 py-1 text-xs font-semibold rounded capitalize bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200'
+    }
+    return 'px-2 py-1 text-xs font-semibold rounded capitalize bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+  }
 
   return (
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
@@ -98,6 +112,9 @@ export default async function DealerDashboardPage() {
             <p className="text-3xl font-bold text-brand-navy dark:text-brand-white">
               {vehicles?.length || 0}
             </p>
+            <p className="text-xs text-brand-gray dark:text-brand-white/50 mt-1">
+              {activeVehicles.length} active
+            </p>
           </div>
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
             <h3 className="text-sm font-medium text-brand-gray dark:text-brand-white/70 mb-1">
@@ -105,6 +122,9 @@ export default async function DealerDashboardPage() {
             </h3>
             <p className="text-3xl font-bold text-brand-navy dark:text-brand-white">
               {activeBookings.length}
+            </p>
+            <p className="text-xs text-brand-gray dark:text-brand-white/50 mt-1">
+              {allBookings?.length || 0} total
             </p>
           </div>
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
@@ -126,7 +146,7 @@ export default async function DealerDashboardPage() {
         </div>
 
         {/* Recent Bookings */}
-        {bookings && bookings.length > 0 && (
+        {allBookings && allBookings.length > 0 && (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-brand-navy dark:text-brand-white">
@@ -136,7 +156,7 @@ export default async function DealerDashboardPage() {
                 href="/dealer/bookings"
                 className="text-brand-blue dark:text-brand-blue-light hover:underline"
               >
-                View All
+                View All ({allBookings.length})
               </Link>
             </div>
             <div className="space-y-4">
@@ -155,13 +175,7 @@ export default async function DealerDashboardPage() {
                         <p className="text-sm text-brand-gray dark:text-brand-white/70 mb-2">
                           {formatDate(booking.start_date)} - {formatDate(booking.end_date)}
                         </p>
-                        <span className={`px-2 py-1 text-xs font-semibold rounded capitalize ${
-                          booking.status === 'confirmed' 
-                            ? 'bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green-light'
-                            : booking.status === 'pending_payment'
-                            ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
-                        }`}>
+                        <span className={getBookingStatusClassName(booking.status)}>
                           {booking.status}
                         </span>
                       </div>

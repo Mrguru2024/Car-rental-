@@ -33,17 +33,23 @@ export async function POST(request: Request) {
       }, { status: 403 })
     }
 
-    // Block rejected verification users
-    if (profile.verification_status === 'rejected') {
+    // Require verification approval before booking
+    // Users can browse and submit verification, but cannot book until approved
+    if (profile.verification_status !== 'approved') {
+      if (profile.verification_status === 'rejected') {
+        return NextResponse.json({ 
+          error: 'Your verification was rejected. Please contact support or resubmit your verification documents.' 
+        }, { status: 403 })
+      }
       return NextResponse.json({ 
-        error: 'Your verification was rejected. Please contact support.' 
+        error: 'Please complete verification and wait for approval before booking. Verification typically takes up to 48 hours.' 
       }, { status: 403 })
     }
 
     const body = await request.json()
     const { vehicle_id, start_date, end_date } = body
 
-    // Enhanced fraud guardrails
+    // Enhanced fraud guardrails (rate limiting and vehicle availability)
     const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
     const { guardBookingAttempt } = await import('@/lib/risk/bookingGuard')
     const guardResult = await guardBookingAttempt(profile.id, vehicle_id, ipAddress)

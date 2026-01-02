@@ -62,13 +62,10 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value)
             supabaseResponse.cookies.set(name, value, options)
-          )
+          })
         },
       },
     }
@@ -78,6 +75,7 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
+  // Get user - this will automatically refresh the session if needed
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -123,8 +121,18 @@ export async function updateSession(request: NextRequest) {
     return applySecurityHeaders(supabaseResponse)
   }
 
+  // Onboarding path - allow authenticated users without profiles (check before auth requirement)
+  const isOnboardingPath = request.nextUrl.pathname === '/onboarding' || request.nextUrl.pathname.startsWith('/onboarding/')
+  if (isOnboardingPath && user) {
+    return applySecurityHeaders(supabaseResponse)
+  }
+
   // Require authentication for all other paths
   if (!user) {
+    // Don't redirect if already on auth page to prevent loops
+    if (request.nextUrl.pathname === '/auth') {
+      return applySecurityHeaders(supabaseResponse)
+    }
     // Redirect to auth with return URL
     const url = request.nextUrl.clone()
     url.pathname = '/auth'
@@ -132,13 +140,14 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+
   // Role-based access control for protected paths
   // Get user profile to check role
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
   const userRole = profile?.role || null
 

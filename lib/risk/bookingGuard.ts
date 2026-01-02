@@ -4,8 +4,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { getVerificationStatus } from '@/lib/verification/computeVerification'
-import { checkRateLimit, recordRateLimitAttempt, type RateLimitAction } from './rateLimit'
+import { checkRateLimit, recordRateLimitAttempt } from './rateLimit'
 
 export interface BookingGuardResult {
   allowed: boolean
@@ -23,17 +22,10 @@ export async function guardBookingAttempt(
 ): Promise<BookingGuardResult> {
   const supabase = await createClient()
 
-  // Check 1: Renter verification status
-  const verification = await getVerificationStatus(renterId)
-  if (!verification || verification.status !== 'verified') {
-    return {
-      allowed: false,
-      reason: 'Please complete verification before booking',
-      errorCode: 'VERIFICATION_REQUIRED',
-    }
-  }
+  // Note: Verification status is now checked in the API route before calling this function
+  // This function focuses on rate limiting and vehicle availability
 
-  // Check 2: Rate limiting
+  // Check 1: Rate limiting
   const identifier = renterId // Use user_id for rate limiting
   const rateLimitCheck = await checkRateLimit(identifier, 'booking_attempt')
 
@@ -45,17 +37,14 @@ export async function guardBookingAttempt(
     }
   }
 
-  // Check 3: Overlapping bookings (already handled in booking creation, but double-check)
-  // This is handled in the booking creation route
-
-  // Check 4: Vehicle availability
+  // Check 2: Vehicle availability
   const { data: vehicle } = await supabase
     .from('vehicles')
     .select('status, dealer_id')
     .eq('id', vehicleId)
     .single()
 
-  if (!vehicle || vehicle.status !== 'active') {
+  if (vehicle?.status !== 'active') {
     return {
       allowed: false,
       reason: 'Vehicle is not available',

@@ -85,10 +85,16 @@ export default function BookingForm({
       return
     }
 
-    // Allow pending verification users to proceed (they can browse but may have restrictions)
-    // But show a warning for rejected verification
-    if (profile.verification_status === 'rejected') {
-      showToast('Your verification was rejected. Please contact support.', 'error')
+    // Require verification approval before booking
+    // Users can browse and submit verification, but cannot book until approved
+    if (profile.verification_status !== 'approved') {
+      if (profile.verification_status === 'rejected') {
+        showToast('Your verification was rejected. Please contact support or resubmit your verification documents.', 'error')
+        router.push('/renter/verification')
+        return
+      }
+      // Pending or no verification status
+      showToast('Please complete verification and wait for approval before booking. Verification typically takes up to 48 hours.', 'error')
       router.push('/renter/verification')
       return
     }
@@ -227,23 +233,48 @@ export default function BookingForm({
           )
         }
 
-        return (
-          <>
-            {profile.verification_status === 'pending' && (
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4">
-                <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  Your verification is pending. You can still book, but please complete verification soon.
+        // Require verification approval before booking
+        // Users can browse and submit verification, but cannot book until approved
+        if (profile.verification_status !== 'approved') {
+          let message = 'Please complete verification and wait for approval before booking.'
+          let linkText = 'Complete Verification'
+          
+          if (profile.verification_status === 'rejected') {
+            message = 'Your verification was rejected. Please contact support or resubmit your verification documents.'
+            linkText = 'Review Verification'
+          } else if (profile.verification_status === 'pending') {
+            message = 'Your verification is being reviewed. Please wait for approval before booking. Verification typically takes up to 48 hours.'
+            linkText = 'View Verification Status'
+          } else {
+            message = 'Please complete verification before booking. Verification typically takes up to 48 hours.'
+          }
+
+          return (
+            <div className="text-center py-4 space-y-4">
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-3">
+                  {message}
                 </p>
+                <Link
+                  href="/renter/verification"
+                  className="inline-block px-6 py-3 bg-yellow-600 dark:bg-yellow-700 text-white rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-600 transition-colors font-medium text-sm"
+                >
+                  {linkText}
+                </Link>
               </div>
-            )}
-            <button
-              type="submit"
-              disabled={loading || !startDate || !endDate}
-              className="w-full px-6 py-3 bg-brand-green dark:bg-brand-green text-white dark:text-white rounded-lg hover:bg-brand-green-dark dark:hover:bg-brand-green-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Processing...' : 'Continue to Payment'}
-            </button>
-          </>
+            </div>
+          )
+        }
+
+        // At this point, verification_status is 'approved'
+        return (
+          <button
+            type="submit"
+            disabled={loading || !startDate || !endDate}
+            className="w-full px-6 py-3 bg-brand-green dark:bg-brand-green text-white dark:text-white rounded-lg hover:bg-brand-green-dark dark:hover:bg-brand-green-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Processing...' : 'Continue to Payment'}
+          </button>
         )
       })()}
     </form>

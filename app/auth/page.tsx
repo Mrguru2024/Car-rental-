@@ -16,6 +16,8 @@ function AuthPageContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useEffect(() => {
     // Check for error parameter from OAuth callback
@@ -31,13 +33,57 @@ function AuthPageContent() {
   }, [searchParams]) // Only depend on searchParams for error checking
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        const redirect = searchParams.get('redirect') || '/onboarding'
-        router.push(redirect)
+    // Check if user is already logged in (only run once on mount)
+    let mounted = true
+    let hasRedirected = false
+    
+    const checkUser = async () => {
+      // Prevent redirect loop - if we're already on auth page with redirect param, don't redirect again
+      const currentPath = window.location.pathname
+      if (currentPath === '/auth' && searchParams.get('redirect')) {
+        // User is on auth page with redirect - they need to log in, don't auto-redirect
+        return
       }
-    })
+      
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!mounted || hasRedirected) return
+      
+      if (user) {
+        hasRedirected = true
+        
+        // Check if user has a profile to determine redirect
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, verification_status')
+          .eq('user_id', user.id)
+          .maybeSingle()
+
+        if (!mounted) return
+
+        let redirectUrl = '/onboarding'
+        if (profile) {
+          // User has profile, redirect based on role
+          if (profile.role === 'renter') {
+            redirectUrl = profile.verification_status === 'approved' ? '/renter' : '/renter/verification'
+          } else if (profile.role === 'dealer' || profile.role === 'private_host') {
+            redirectUrl = profile.verification_status === 'approved' ? '/dealer' : '/dealer/verification'
+          } else if (profile.role === 'admin') {
+            redirectUrl = '/admin'
+          }
+        } else {
+          // No profile, use redirect param or default to onboarding
+          redirectUrl = searchParams.get('redirect') || '/onboarding'
+        }
+        
+        // Use hard redirect to ensure middleware sees the session
+        window.location.href = redirectUrl
+      }
+    }
+    checkUser()
+    
+    return () => {
+      mounted = false
+    }
   }, [router, searchParams, supabase])
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -74,7 +120,10 @@ function AuthPageContent() {
       } else {
         // User is signed in automatically (if email confirmation is disabled)
         showToast('Account created successfully!', 'success')
-        router.push('/onboarding')
+        // Wait a moment for session to be fully established
+        await new Promise(resolve => setTimeout(resolve, 100))
+        // Use hard redirect to ensure middleware sees the new session
+        window.location.href = '/onboarding'
       }
     } catch (error: any) {
       showToast(error.message || 'Failed to create account', 'error')
@@ -97,6 +146,18 @@ function AuthPageContent() {
 
       showToast('Signed in successfully!', 'success')
       
+      // Ensure session is established by getting it explicitly
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        showToast('Session not established. Please try again.', 'error')
+        setLoading(false)
+        return
+      }
+      
+      // Wait a moment for cookies to be set
+      await new Promise(resolve => setTimeout(resolve, 200))
+      
       // Check if user has a profile
       const { data: profile } = await supabase
         .from('profiles')
@@ -104,23 +165,21 @@ function AuthPageContent() {
         .eq('user_id', data.user.id)
         .maybeSingle()
 
-      // If profile exists, redirect based on role and verification status
-      // Note: Errors (404 from RLS or missing record) are ignored - user needs onboarding
+      // Determine redirect URL
+      let redirectUrl = '/onboarding'
       if (profile) {
         // User has profile, redirect based on role and verification status
         if (profile.role === 'renter') {
-          router.push(profile.verification_status === 'approved' ? '/renter' : '/renter/verification')
+          redirectUrl = profile.verification_status === 'approved' ? '/renter' : '/renter/verification'
         } else if (profile.role === 'dealer' || profile.role === 'private_host') {
-          router.push(profile.verification_status === 'approved' ? '/dealer' : '/dealer/verification')
+          redirectUrl = profile.verification_status === 'approved' ? '/dealer' : '/dealer/verification'
         } else if (profile.role === 'admin') {
-          router.push('/admin')
-        } else {
-          router.push('/onboarding')
+          redirectUrl = '/admin'
         }
-      } else {
-        // No profile, redirect to onboarding
-        router.push('/onboarding')
       }
+
+      // Use hard redirect to ensure middleware sees the new session
+      window.location.href = redirectUrl
     } catch (error: any) {
       showToast(error.message || 'Failed to sign in', 'error')
     } finally {
@@ -181,6 +240,8 @@ function AuthPageContent() {
                 setEmail('')
                 setPassword('')
                 setConfirmPassword('')
+                setShowPassword(false)
+                setShowConfirmPassword(false)
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'signin'
@@ -197,6 +258,8 @@ function AuthPageContent() {
                 setEmail('')
                 setPassword('')
                 setConfirmPassword('')
+                setShowPassword(false)
+                setShowConfirmPassword(false)
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'signup'
@@ -260,31 +323,123 @@ function AuthPageContent() {
                 <label htmlFor="signup-password" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-1">
                   Password
                 </label>
-                <input
-                  id="signup-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 6 characters"
-                  required
-                  minLength={6}
-                  className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70"
-                />
+                <div className="relative">
+                  <input
+                    id="signup-password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                    required
+                    minLength={6}
+                    className="w-full px-4 py-2 pr-10 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-gray dark:text-brand-white/70 hover:text-brand-navy dark:hover:text-brand-white transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
               <div>
                 <label htmlFor="signup-confirm-password" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-1">
                   Confirm Password
                 </label>
-                <input
-                  id="signup-confirm-password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm your password"
-                  required
-                  minLength={6}
-                  className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70"
-                />
+                <div className="relative">
+                  <input
+                    id="signup-confirm-password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your password"
+                    required
+                    minLength={6}
+                    className="w-full px-4 py-2 pr-10 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-gray dark:text-brand-white/70 hover:text-brand-navy dark:hover:text-brand-white transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? (
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
               <button
                 type="submit"
@@ -317,15 +472,61 @@ function AuthPageContent() {
                 <label htmlFor="signin-password" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-1">
                   Password
                 </label>
-                <input
-                  id="signin-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70"
-                />
+                <div className="relative">
+                  <input
+                    id="signin-password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    required
+                    className="w-full px-4 py-2 pr-10 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-gray dark:text-brand-white/70 hover:text-brand-navy dark:hover:text-brand-white transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
               <button
                 type="submit"

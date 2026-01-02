@@ -21,22 +21,26 @@ export default async function RenterDashboardPage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!profile || profile.role !== 'renter') {
+  if (!profile?.role || profile.role !== 'renter') {
     redirect('/onboarding')
   }
 
-  // Get recent bookings
-  const { data: bookings } = await supabase
+  // Get all bookings for stats
+  const { data: allBookings } = await supabase
     .from('bookings')
     .select('*, vehicles(id, make, model, year, vehicle_photos(file_path))')
     .eq('renter_id', user.id)
     .order('created_at', { ascending: false })
-    .limit(5)
 
   const upcomingBookings =
-    bookings?.filter(
+    allBookings?.filter(
       (b: any) => b.status === 'confirmed' && new Date(b.start_date) >= new Date()
     ) || []
+
+  const totalSpent =
+    allBookings
+      ?.filter((b: any) => b.status === 'confirmed' || b.status === 'completed')
+      .reduce((sum: number, b: any) => sum + (b.total_price || 0), 0) || 0
 
   return (
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
@@ -58,32 +62,34 @@ export default async function RenterDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-1">
-                  Verification Required
+                  Verification Required to Book
                 </h3>
                 <p className="text-sm text-yellow-700 dark:text-yellow-300">
                   {profile.verification_status === 'pending'
-                    ? 'Your verification is being reviewed. You can still browse vehicles.'
-                    : 'Please complete verification to book vehicles.'}
+                    ? 'Your verification is being reviewed. You can browse vehicles, but booking requires approval. Verification typically takes up to 48 hours.'
+                    : profile.verification_status === 'rejected'
+                    ? 'Your verification was rejected. Please contact support or resubmit your documents to book vehicles.'
+                    : 'Please complete verification to book vehicles. Verification typically takes up to 48 hours.'}
                 </p>
               </div>
               <Link
                 href="/renter/verification"
                 className="px-4 py-2 bg-yellow-600 dark:bg-yellow-700 text-white rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-600 transition-colors text-sm font-medium"
               >
-                {profile.verification_status === 'pending' ? 'View Status' : 'Verify Now'}
+                {profile.verification_status === 'pending' ? 'View Status' : profile.verification_status === 'rejected' ? 'Resubmit Verification' : 'Complete Verification'}
               </Link>
             </div>
           </div>
         )}
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
             <h3 className="text-sm font-medium text-brand-gray dark:text-brand-white/70 mb-1">
               Total Bookings
             </h3>
             <p className="text-3xl font-bold text-brand-navy dark:text-brand-white">
-              {bookings?.length || 0}
+              {allBookings?.length || 0}
             </p>
           </div>
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
@@ -92,6 +98,14 @@ export default async function RenterDashboardPage() {
             </h3>
             <p className="text-3xl font-bold text-brand-navy dark:text-brand-white">
               {upcomingBookings.length}
+            </p>
+          </div>
+          <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
+            <h3 className="text-sm font-medium text-brand-gray dark:text-brand-white/70 mb-1">
+              Total Spent
+            </h3>
+            <p className="text-3xl font-bold text-brand-green dark:text-brand-green-light">
+              {formatCurrency(totalSpent)}
             </p>
           </div>
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
@@ -119,7 +133,7 @@ export default async function RenterDashboardPage() {
               </Link>
             </div>
             <div className="space-y-4">
-              {upcomingBookings.map((booking: any) => {
+              {upcomingBookings.slice(0, 5).map((booking: any) => {
                 const vehicle = booking.vehicles
                 const imageUrl =
                   vehicle.vehicle_photos && vehicle.vehicle_photos.length > 0
