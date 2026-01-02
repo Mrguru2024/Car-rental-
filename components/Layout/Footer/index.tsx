@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -9,8 +10,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="text-2xl font-bold text-brand-blue-light mb-4 inline-block">
-              Carsera
+            <Link href="/" className="mb-4 inline-block">
+              <Image
+                src="/media/images/Untitled design.svg"
+                alt="Carsera Logo"
+                width={400}
+                height={120}
+                className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto"
+              />
             </Link>
             <p className="text-brand-white/70 mb-4 max-w-md">
               Carsera — Where Cars Meet Renters. Rent cars from trusted local dealers and private owners in Atlanta.

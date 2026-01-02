@@ -114,7 +114,7 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
               max={MAX_MILES}
               step="50"
               defaultValue={minMileage || '0'}
-              className="w-full h-2 bg-brand-gray/20 dark:bg-brand-navy rounded-lg appearance-none cursor-pointer accent-brand-blue dark:accent-brand-blue-light"
+              className="w-full"
             />
           </div>
           <div className="flex-1 min-w-0 w-full">
@@ -127,7 +127,7 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
               max={MAX_MILES}
               step="50"
               defaultValue={String(initialMaxValue)}
-              className="w-full h-2 bg-brand-gray/20 dark:bg-brand-navy rounded-lg appearance-none cursor-pointer accent-brand-blue dark:accent-brand-blue-light"
+              className="w-full"
             />
             {/* Hidden input for form submission with "unlimited" value when at max */}
             <input
