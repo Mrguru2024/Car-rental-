@@ -102,6 +102,14 @@ export interface Database {
           verification_status: 'pending' | 'approved' | 'rejected'
           stripe_connect_account_id: string | null
           stripe_connect_account_status: 'pending' | 'active' | 'restricted' | 'rejected' | null
+          verification_documents: Record<string, any> | null
+          drivers_license_number: string | null
+          drivers_license_state: string | null
+          drivers_license_expiration: string | null
+          business_name: string | null
+          business_license_number: string | null
+          business_address: string | null
+          tax_id: string | null
           created_at: string
           updated_at: string
         }
@@ -115,6 +123,14 @@ export interface Database {
           verification_status?: 'pending' | 'approved' | 'rejected'
           stripe_connect_account_id?: string | null
           stripe_connect_account_status?: 'pending' | 'active' | 'restricted' | 'rejected' | null
+          verification_documents?: Record<string, any> | null
+          drivers_license_number?: string | null
+          drivers_license_state?: string | null
+          drivers_license_expiration?: string | null
+          business_name?: string | null
+          business_license_number?: string | null
+          business_address?: string | null
+          tax_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -128,6 +144,14 @@ export interface Database {
           verification_status?: 'pending' | 'approved' | 'rejected'
           stripe_connect_account_id?: string | null
           stripe_connect_account_status?: 'pending' | 'active' | 'restricted' | 'rejected' | null
+          verification_documents?: Record<string, any> | null
+          drivers_license_number?: string | null
+          drivers_license_state?: string | null
+          drivers_license_expiration?: string | null
+          business_name?: string | null
+          business_license_number?: string | null
+          business_address?: string | null
+          tax_id?: string | null
           created_at?: string
           updated_at?: string
         }

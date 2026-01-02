@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast/ToastProvider'
 import Header from '@/components/Layout/Header'
+import AddressInput from '@/components/Address/AddressInput'
 
 export default function DealerVerificationPage() {
   const router = useRouter()
@@ -250,26 +251,16 @@ export default function DealerVerificationPage() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="business_address"
-                  className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2"
-                >
-                  Business Address <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  id="business_address"
-                  name="business_address"
-                  required
-                  value={formData.business_address}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, business_address: e.target.value }))
-                  }
-                  placeholder="123 Business St, Atlanta, GA 30301"
-                  rows={3}
-                  className="w-full px-4 py-3 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 resize-none"
-                />
-              </div>
+              <AddressInput
+                id="business_address"
+                name="business_address"
+                value={formData.business_address}
+                onChange={(value) => setFormData((prev) => ({ ...prev, business_address: value }))}
+                placeholder="123 Business St, Atlanta, GA 30301"
+                required
+                rows={3}
+                label="Business Address"
+              />
 
               <div>
                 <label
