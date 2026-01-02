@@ -69,7 +69,7 @@ export default function Header() {
     if (profile.role === 'renter') {
       return '/renter'
     }
-    if (profile.role === 'admin') {
+    if (profile.role === 'admin' || profile.role === 'prime_admin' || profile.role === 'super_admin') {
       return '/admin'
     }
     return '/onboarding'

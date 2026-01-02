@@ -95,7 +95,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          role: 'dealer' | 'renter' | 'admin'
+          role: 'dealer' | 'renter' | 'admin' | 'prime_admin' | 'super_admin'
           full_name: string | null
           phone: string | null
           address: string | null
@@ -116,7 +116,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          role: 'dealer' | 'renter' | 'admin'
+          role: 'dealer' | 'renter' | 'admin' | 'prime_admin' | 'super_admin'
           full_name?: string | null
           phone?: string | null
           address?: string | null
@@ -137,7 +137,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
-          role?: 'dealer' | 'renter' | 'admin'
+          role?: 'dealer' | 'renter' | 'admin' | 'prime_admin' | 'super_admin'
           full_name?: string | null
           phone?: string | null
           address?: string | null
@@ -467,6 +467,68 @@ export interface Database {
           claim_id?: string
           file_path?: string
           created_at?: string
+        }
+      }
+      document_verification_audits: {
+        Row: {
+          id: string
+          profile_id: string
+          document_type: string
+          verification_status: 'pending' | 'flagged' | 'verified' | 'rejected'
+          flags: Array<{
+            type: 'inconsistency' | 'invalid' | 'suspicious'
+            reason: string
+            severity: 'low' | 'medium' | 'high'
+            field?: string
+          }>
+          bot_check_result: Record<string, any> | null
+          bot_check_at: string | null
+          auditor_id: string | null
+          auditor_notes: string | null
+          auditor_decision: 'approved' | 'rejected' | 'pending' | null
+          auditor_decision_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          document_type: string
+          verification_status?: 'pending' | 'flagged' | 'verified' | 'rejected'
+          flags?: Array<{
+            type: 'inconsistency' | 'invalid' | 'suspicious'
+            reason: string
+            severity: 'low' | 'medium' | 'high'
+            field?: string
+          }>
+          bot_check_result?: Record<string, any> | null
+          bot_check_at?: string | null
+          auditor_id?: string | null
+          auditor_notes?: string | null
+          auditor_decision?: 'approved' | 'rejected' | 'pending' | null
+          auditor_decision_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          document_type?: string
+          verification_status?: 'pending' | 'flagged' | 'verified' | 'rejected'
+          flags?: Array<{
+            type: 'inconsistency' | 'invalid' | 'suspicious'
+            reason: string
+            severity: 'low' | 'medium' | 'high'
+            field?: string
+          }>
+          bot_check_result?: Record<string, any> | null
+          bot_check_at?: string | null
+          auditor_id?: string | null
+          auditor_notes?: string | null
+          auditor_decision?: 'approved' | 'rejected' | 'pending' | null
+          auditor_decision_at?: string | null
+          created_at?: string
+          updated_at?: string
         }
       }
     }

@@ -14,14 +14,17 @@ export default async function AdminDashboardPage() {
     redirect('/auth?redirect=/admin')
   }
 
-  // Get user profile to check admin role
+  // Get user profile to check admin role (admin, prime_admin, or super_admin can access)
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (!profile || profile.role !== 'admin') {
+  if (
+    !profile ||
+    (profile.role !== 'admin' && profile.role !== 'prime_admin' && profile.role !== 'super_admin')
+  ) {
     redirect('/')
   }
 
@@ -245,6 +248,25 @@ export default async function AdminDashboardPage() {
               Manage users and profiles
             </p>
           </Link>
+
+          {profile?.role === 'prime_admin' && (
+            <Link
+              href="/admin/document-audit"
+              className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border-2 border-purple-200 dark:border-purple-800/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                  Document Audit
+                </h3>
+                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-xs font-semibold rounded-full">
+                  Prime Admin
+                </span>
+              </div>
+              <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                Review flagged documents from automated bot checks
+              </p>
+            </Link>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

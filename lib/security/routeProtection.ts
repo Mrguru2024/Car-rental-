@@ -8,8 +8,8 @@ import { redirect } from 'next/navigation'
 
 export interface RouteProtectionOptions {
   requireAuth?: boolean
-  requireRole?: 'admin' | 'dealer' | 'renter' | 'private_host'
-  requireRoles?: Array<'admin' | 'dealer' | 'renter' | 'private_host'>
+  requireRole?: 'admin' | 'dealer' | 'renter' | 'private_host' | 'prime_admin' | 'super_admin'
+  requireRoles?: Array<'admin' | 'dealer' | 'renter' | 'private_host' | 'prime_admin' | 'super_admin'>
   redirectTo?: string
 }
 
@@ -56,7 +56,7 @@ export async function protectRoute(options: RouteProtectionOptions = {}) {
   }
 
   // Check multiple role requirements
-  if (requireRoles && !requireRoles.includes(profile.role as any)) {
+  if (requireRoles && !requireRoles.includes(profile.role)) {
     redirect('/onboarding')
   }
 
@@ -64,12 +64,34 @@ export async function protectRoute(options: RouteProtectionOptions = {}) {
 }
 
 /**
- * Protect admin routes
+ * Protect admin routes (admin, prime_admin, and super_admin can access)
  */
 export async function protectAdminRoute() {
   return protectRoute({
     requireAuth: true,
-    requireRole: 'admin',
+    requireRoles: ['admin', 'prime_admin', 'super_admin'],
+    redirectTo: '/',
+  })
+}
+
+/**
+ * Protect Prime Admin routes (prime_admin and super_admin can access)
+ */
+export async function protectPrimeAdminRoute() {
+  return protectRoute({
+    requireAuth: true,
+    requireRoles: ['prime_admin', 'super_admin'],
+    redirectTo: '/',
+  })
+}
+
+/**
+ * Protect Super Admin routes (only super_admin can access)
+ */
+export async function protectSuperAdminRoute() {
+  return protectRoute({
+    requireAuth: true,
+    requireRole: 'super_admin',
     redirectTo: '/',
   })
 }
@@ -119,12 +141,12 @@ export async function canAccessBooking(bookingId: string, userId: string): Promi
     return true
   }
 
-  // Check if user is admin
+  // Check if user is admin or prime_admin
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('user_id', userId)
     .single()
 
-  return profile?.role === 'admin'
+  return profile?.role === 'admin' || profile?.role === 'prime_admin'
 }

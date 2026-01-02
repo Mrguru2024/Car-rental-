@@ -151,13 +151,37 @@ export async function updateSession(request: NextRequest) {
 
   const userRole = profile?.role || null
 
-  // Admin-only paths
+  // Admin-only paths (admin, prime_admin, and super_admin can access)
   const adminPaths = ['/admin']
   const isAdminPath = adminPaths.some(path => 
     request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')
   )
 
-  if (isAdminPath && userRole !== 'admin') {
+  // Prime Admin-only paths (prime_admin and super_admin can access)
+  const primeAdminPaths = ['/admin/document-audit']
+  const isPrimeAdminPath = primeAdminPaths.some(path => 
+    request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')
+  )
+
+  // Super Admin-only paths (only super_admin can access)
+  const superAdminPaths = ['/admin/dev', '/admin/system']
+  const isSuperAdminPath = superAdminPaths.some(path => 
+    request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')
+  )
+
+  if (isSuperAdminPath && userRole !== 'super_admin') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
+  }
+
+  if (isPrimeAdminPath && userRole !== 'prime_admin' && userRole !== 'super_admin') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
+  }
+
+  if (isAdminPath && userRole !== 'admin' && userRole !== 'prime_admin' && userRole !== 'super_admin') {
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
