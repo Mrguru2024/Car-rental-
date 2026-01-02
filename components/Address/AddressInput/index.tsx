@@ -45,8 +45,7 @@ export default function AddressInput({
       if (!element || !window.google?.maps?.places || autocompleteRef.current) return
 
       try {
-        // Google Places Autocomplete works best with input elements
-        // For textareas, we'll use input mode but allow multi-line display
+        // Google Places Autocomplete works with both input and textarea elements
         const autocomplete = new window.google.maps.places.Autocomplete(element, {
           types: ['address'],
           fields: [
@@ -178,7 +177,48 @@ export default function AddressInput({
     }
   }, [isLoaded, rows, initializeAutocomplete])
 
-  const baseClassName = `w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 ${className}`
+  const baseClassName = `w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 ${
+    error
+      ? 'border-red-500 dark:border-red-500'
+      : 'border-brand-gray dark:border-brand-navy'
+  } ${className}`
+
+  // Google Places Autocomplete works with both input and textarea elements
+  const inputElement = rows > 1 ? (
+    <textarea
+      id={id}
+      name={name}
+      value={value}
+      onChange={(e) => {
+        setError(null)
+        onChange(e.target.value)
+      }}
+      placeholder={placeholder}
+      required={required}
+      rows={rows}
+      ref={textareaRef}
+      className={`${baseClassName} resize-none`}
+      aria-invalid={error ? 'true' : 'false'}
+      aria-describedby={error ? `${id}-error` : helpText ? `${id}-help` : undefined}
+    />
+  ) : (
+    <input
+      id={id}
+      name={name}
+      type="text"
+      value={value}
+      onChange={(e) => {
+        setError(null)
+        onChange(e.target.value)
+      }}
+      placeholder={placeholder}
+      required={required}
+      ref={inputRef}
+      className={baseClassName}
+      aria-invalid={error ? 'true' : 'false'}
+      aria-describedby={error ? `${id}-error` : helpText ? `${id}-help` : undefined}
+    />
+  )
 
   return (
     <div>
@@ -187,32 +227,17 @@ export default function AddressInput({
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
-      {rows > 1 ? (
-        <textarea
-          id={id}
-          name={name}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          required={required}
-          rows={rows}
-          ref={textareaRef}
-          className={`${baseClassName} resize-none`}
-        />
-      ) : (
-        <input
-          id={id}
-          name={name}
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          required={required}
-          ref={inputRef}
-          className={baseClassName}
-        />
+      {inputElement}
+      {error && (
+        <p id={`${id}-error`} className="mt-1 text-xs text-red-500 dark:text-red-400" role="alert">
+          {error}
+        </p>
       )}
-      {helpText && <p className="mt-1 text-xs text-brand-gray dark:text-brand-white/70">{helpText}</p>}
+      {!error && helpText && (
+        <p id={`${id}-help`} className="mt-1 text-xs text-brand-gray dark:text-brand-white/70">
+          {helpText}
+        </p>
+      )}
     </div>
   )
 }
