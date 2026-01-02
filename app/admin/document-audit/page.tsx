@@ -6,9 +6,16 @@ import { protectPrimeAdminRoute } from '@/lib/security/routeProtection'
 
 export default async function DocumentAuditPage() {
   // Protect route - only Prime Admins can access
-  const { user, profile } = await protectPrimeAdminRoute()
+  const { user } = await protectPrimeAdminRoute()
 
   const supabase = await createClient()
+
+  // Get full profile with id for current auditor
+  const { data: currentProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
 
   // Get all flagged document verifications
   const { data: flaggedAudits, error: flaggedError } = await supabase
@@ -97,7 +104,7 @@ export default async function DocumentAuditPage() {
         <DocumentAuditClient
           flaggedAudits={flaggedAudits || []}
           pendingAudits={pendingAudits || []}
-          currentAuditorId={profile?.id || null}
+          currentAuditorId={currentProfile?.id || null}
         />
       </div>
     </div>

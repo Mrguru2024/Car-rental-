@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
         redirectUrl = profile.verification_status === 'approved' ? '/renter' : '/renter/verification'
       } else if (profile.role === 'dealer' || profile.role === 'private_host') {
         redirectUrl = profile.verification_status === 'approved' ? '/dealer' : '/dealer/verification'
-      } else if (profile.role === 'admin') {
+      } else if (profile.role === 'admin' || profile.role === 'prime_admin' || profile.role === 'super_admin') {
         redirectUrl = '/admin'
       }
     }
