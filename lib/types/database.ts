@@ -100,6 +100,8 @@ export interface Database {
           phone: string | null
           address: string | null
           verification_status: 'pending' | 'approved' | 'rejected'
+          stripe_connect_account_id: string | null
+          stripe_connect_account_status: 'pending' | 'active' | 'restricted' | 'rejected' | null
           created_at: string
           updated_at: string
         }
@@ -111,6 +113,8 @@ export interface Database {
           phone?: string | null
           address?: string | null
           verification_status?: 'pending' | 'approved' | 'rejected'
+          stripe_connect_account_id?: string | null
+          stripe_connect_account_status?: 'pending' | 'active' | 'restricted' | 'rejected' | null
           created_at?: string
           updated_at?: string
         }
@@ -122,6 +126,8 @@ export interface Database {
           phone?: string | null
           address?: string | null
           verification_status?: 'pending' | 'approved' | 'rejected'
+          stripe_connect_account_id?: string | null
+          stripe_connect_account_status?: 'pending' | 'active' | 'restricted' | 'rejected' | null
           created_at?: string
           updated_at?: string
         }
@@ -183,6 +189,11 @@ export interface Database {
           stripe_payment_intent_id: string | null
           plan_fee_cents: number
           coverage_type: 'platform_plan' | 'byoi' | null
+          dealer_payout_amount_cents: number | null
+          platform_fee_cents: number | null
+          stripe_transfer_id: string | null
+          payout_status: 'pending' | 'transferred' | 'paid_out' | 'failed' | null
+          payout_scheduled_date: string | null
           created_at: string
           updated_at: string
         }
@@ -198,6 +209,11 @@ export interface Database {
           stripe_payment_intent_id?: string | null
           plan_fee_cents?: number
           coverage_type?: 'platform_plan' | 'byoi' | null
+          dealer_payout_amount_cents?: number | null
+          platform_fee_cents?: number | null
+          stripe_transfer_id?: string | null
+          payout_status?: 'pending' | 'transferred' | 'paid_out' | 'failed' | null
+          payout_scheduled_date?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -213,6 +229,11 @@ export interface Database {
           stripe_payment_intent_id?: string | null
           plan_fee_cents?: number
           coverage_type?: 'platform_plan' | 'byoi' | null
+          dealer_payout_amount_cents?: number | null
+          platform_fee_cents?: number | null
+          stripe_transfer_id?: string | null
+          payout_status?: 'pending' | 'transferred' | 'paid_out' | 'failed' | null
+          payout_scheduled_date?: string | null
           created_at?: string
           updated_at?: string
         }

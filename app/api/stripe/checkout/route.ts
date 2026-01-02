@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { calculatePayoutAmounts } from '@/lib/stripe/payouts'
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing STRIPE_SECRET_KEY environment variable')
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: '2023-10-16',
 })
 
 export async function POST(request: Request) {
@@ -31,13 +32,41 @@ export async function POST(request: Request) {
     // Fetch booking with vehicle
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
-      .select('*, vehicles(price_per_day)')
+      .select('*, vehicles(price_per_day, dealer_id)')
       .eq('id', bookingId)
       .eq('renter_id', user.id)
       .single()
 
     if (bookingError || !booking) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+    }
+
+    const vehicle = booking.vehicles as { price_per_day: number; dealer_id: string }
+
+    // Fetch dealer profile with Connect account info
+    const { data: dealer, error: dealerError } = await supabase
+      .from('profiles')
+      .select('id, stripe_connect_account_id, stripe_connect_account_status')
+      .eq('id', vehicle.dealer_id)
+      .single()
+
+    if (dealerError || !dealer) {
+      return NextResponse.json({ error: 'Dealer not found' }, { status: 404 })
+    }
+
+    // Verify dealer has active Connect account
+    if (!dealer.stripe_connect_account_id) {
+      return NextResponse.json(
+        { error: 'Dealer has not set up payment account. Please contact support.' },
+        { status: 400 }
+      )
+    }
+
+    if (dealer.stripe_connect_account_status !== 'active') {
+      return NextResponse.json(
+        { error: 'Dealer payment account is not active. Please contact support.' },
+        { status: 400 }
+      )
     }
 
     if (booking.status !== 'draft' && booking.status !== 'pending_payment') {
@@ -87,11 +116,12 @@ export async function POST(request: Request) {
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime())
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-    const vehicle = booking.vehicles as { price_per_day: number }
     const vehiclePricePerDay = vehicle.price_per_day / 100 // Convert cents to dollars
-    const rentalBase = diffDays * vehiclePricePerDay
-    const platformFee = rentalBase * 0.1
-    const planFee = booking.plan_fee_cents / 100
+    const rentalBaseCents = Math.round(diffDays * vehiclePricePerDay * 100)
+    const planFeeCents = booking.plan_fee_cents || 0
+
+    // Calculate payout amounts (platform fee and dealer payout)
+    const { platformFeeCents, dealerPayoutCents } = calculatePayoutAmounts(rentalBaseCents, 0.1)
 
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
@@ -100,7 +130,7 @@ export async function POST(request: Request) {
           product_data: {
             name: `Vehicle Rental - ${diffDays} ${diffDays === 1 ? 'day' : 'days'}`,
           },
-          unit_amount: Math.round(rentalBase * 100),
+          unit_amount: rentalBaseCents,
         },
         quantity: 1,
       },
@@ -110,21 +140,21 @@ export async function POST(request: Request) {
           product_data: {
             name: 'Platform Fee (10%)',
           },
-          unit_amount: Math.round(platformFee * 100),
+          unit_amount: platformFeeCents,
         },
         quantity: 1,
       },
     ]
 
     // Add plan fee if platform plan
-    if (planFee > 0) {
+    if (planFeeCents > 0) {
       lineItems.push({
         price_data: {
           currency: 'usd',
           product_data: {
             name: 'Protection Plan Fee',
           },
-          unit_amount: booking.plan_fee_cents,
+          unit_amount: planFeeCents,
         },
         quantity: 1,
       })
@@ -145,12 +175,15 @@ export async function POST(request: Request) {
       },
     })
 
-    // Update booking status and save session ID
+    // Update booking with payout information
     const { error: updateError } = await supabase
       .from('bookings')
       .update({
         status: 'pending_payment',
         stripe_checkout_session_id: session.id,
+        platform_fee_cents: platformFeeCents,
+        dealer_payout_amount_cents: dealerPayoutCents,
+        payout_status: 'pending',
       })
       .eq('id', bookingId)
 
