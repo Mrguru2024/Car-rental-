@@ -95,7 +95,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          role: 'dealer' | 'renter'
+          role: 'dealer' | 'renter' | 'admin'
           full_name: string | null
           phone: string | null
           address: string | null
@@ -106,7 +106,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          role: 'dealer' | 'renter'
+          role: 'dealer' | 'renter' | 'admin'
           full_name?: string | null
           phone?: string | null
           address?: string | null
@@ -117,7 +117,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
-          role?: 'dealer' | 'renter'
+          role?: 'dealer' | 'renter' | 'admin'
           full_name?: string | null
           phone?: string | null
           address?: string | null
@@ -181,6 +181,8 @@ export interface Database {
           status: 'draft' | 'pending_payment' | 'confirmed' | 'canceled'
           stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
+          plan_fee_cents: number
+          coverage_type: 'platform_plan' | 'byoi' | null
           created_at: string
           updated_at: string
         }
@@ -194,6 +196,8 @@ export interface Database {
           status?: 'draft' | 'pending_payment' | 'confirmed' | 'canceled'
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
+          plan_fee_cents?: number
+          coverage_type?: 'platform_plan' | 'byoi' | null
           created_at?: string
           updated_at?: string
         }
@@ -207,8 +211,217 @@ export interface Database {
           status?: 'draft' | 'pending_payment' | 'confirmed' | 'canceled'
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
+          plan_fee_cents?: number
+          coverage_type?: 'platform_plan' | 'byoi' | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      protection_plans: {
+        Row: {
+          id: string
+          name: 'basic' | 'standard' | 'premium'
+          display_name: string
+          description: string | null
+          daily_fee_cents: number
+          deductible_cents: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: 'basic' | 'standard' | 'premium'
+          display_name: string
+          description?: string | null
+          daily_fee_cents: number
+          deductible_cents: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: 'basic' | 'standard' | 'premium'
+          display_name?: string
+          description?: string | null
+          daily_fee_cents?: number
+          deductible_cents?: number
+          is_active?: boolean
+          created_at?: string
+        }
+      }
+      byoi_documents: {
+        Row: {
+          id: string
+          renter_profile_id: string
+          file_path: string
+          policyholder_name: string
+          policy_number: string | null
+          insurer_name: string | null
+          coverage_notes: string | null
+          effective_date: string
+          expiration_date: string
+          status: 'pending' | 'approved' | 'rejected'
+          admin_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          renter_profile_id: string
+          file_path: string
+          policyholder_name: string
+          policy_number?: string | null
+          insurer_name?: string | null
+          coverage_notes?: string | null
+          effective_date: string
+          expiration_date: string
+          status?: 'pending' | 'approved' | 'rejected'
+          admin_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          renter_profile_id?: string
+          file_path?: string
+          policyholder_name?: string
+          policy_number?: string | null
+          insurer_name?: string | null
+          coverage_notes?: string | null
+          effective_date?: string
+          expiration_date?: string
+          status?: 'pending' | 'approved' | 'rejected'
+          admin_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      booking_insurance_elections: {
+        Row: {
+          id: string
+          booking_id: string
+          coverage_type: 'platform_plan' | 'byoi'
+          protection_plan_id: string | null
+          plan_fee_cents: number
+          deductible_cents: number
+          coverage_snapshot_json: Json
+          byoi_document_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id: string
+          coverage_type: 'platform_plan' | 'byoi'
+          protection_plan_id?: string | null
+          plan_fee_cents?: number
+          deductible_cents?: number
+          coverage_snapshot_json?: Json
+          byoi_document_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string
+          coverage_type?: 'platform_plan' | 'byoi'
+          protection_plan_id?: string | null
+          plan_fee_cents?: number
+          deductible_cents?: number
+          coverage_snapshot_json?: Json
+          byoi_document_id?: string | null
+          created_at?: string
+        }
+      }
+      liability_acceptances: {
+        Row: {
+          id: string
+          booking_id: string
+          user_id: string
+          acceptance_text_version: string
+          acceptance_text: string
+          typed_full_name: string
+          accepted_at: string
+          ip_address: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          id?: string
+          booking_id: string
+          user_id: string
+          acceptance_text_version: string
+          acceptance_text: string
+          typed_full_name: string
+          accepted_at?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          id?: string
+          booking_id?: string
+          user_id?: string
+          acceptance_text_version?: string
+          acceptance_text?: string
+          typed_full_name?: string
+          accepted_at?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+      }
+      claims: {
+        Row: {
+          id: string
+          booking_id: string
+          renter_profile_id: string
+          coverage_type: 'platform_plan' | 'byoi'
+          incident_datetime: string
+          description: string
+          police_report_file_path: string | null
+          status: 'submitted' | 'in_review' | 'closed'
+          admin_notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id: string
+          renter_profile_id: string
+          coverage_type: 'platform_plan' | 'byoi'
+          incident_datetime: string
+          description: string
+          police_report_file_path?: string | null
+          status?: 'submitted' | 'in_review' | 'closed'
+          admin_notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string
+          renter_profile_id?: string
+          coverage_type?: 'platform_plan' | 'byoi'
+          incident_datetime?: string
+          description?: string
+          police_report_file_path?: string | null
+          status?: 'submitted' | 'in_review' | 'closed'
+          admin_notes?: string | null
+          created_at?: string
+        }
+      }
+      claim_photos: {
+        Row: {
+          id: string
+          claim_id: string
+          file_path: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          claim_id: string
+          file_path: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          claim_id?: string
+          file_path?: string
+          created_at?: string
         }
       }
     }

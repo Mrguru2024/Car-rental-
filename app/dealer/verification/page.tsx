@@ -144,7 +144,7 @@ export default function DealerVerificationPage() {
 
       if (error) throw error
 
-      showToast('Verification submitted successfully! We'll review your documents soon.', 'success')
+      showToast("Verification submitted successfully! We'll review your documents soon.", 'success')
       router.push('/dealer')
     } catch (error: any) {
       showToast(error.message || 'Failed to submit verification', 'error')

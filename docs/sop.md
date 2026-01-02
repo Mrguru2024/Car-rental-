@@ -15,6 +15,8 @@ This key is used to fetch and cache fallback images.
 
 - `vehicle-photos`
 - `verification-docs`
+- `byoi-docs`
+- `claim-photos`
 
 ---
 
@@ -62,6 +64,20 @@ This key is used to fetch and cache fallback images.
 
 ---
 
+## 12.4 Insurance & Liability (See INSURANCE.md and LIABILITY.md)
+
+- Protection Plans: Renters can choose from Basic/Standard/Premium plans
+- BYOI: Renters can upload their own insurance for admin approval
+- Liability Acceptance: Required for BYOI coverage (see LIABILITY.md)
+- Coverage Enforcement: No booking can be confirmed without valid coverage election
+- Claims: Renters can file claims through `/renter/claims/new`
+
+For detailed documentation, see:
+- `/docs/INSURANCE.md` - Protection plans, BYOI workflow, claims intake
+- `/docs/LIABILITY.md` - Liability acceptance process and stored evidence
+
+---
+
 ## 13. Admin Operations SOP
 
 ### 13.1 Admin Responsibilities
@@ -69,12 +85,15 @@ This key is used to fetch and cache fallback images.
 - Review and approve dealer applications
 - Review and approve renter applications
 - Moderate vehicle listings if necessary
+- Review and approve BYOI insurance documents
+- Review and process claims
 
 ### 13.2 Admin Tools
 
 - Verification dashboard
 - Approve / reject controls
 - Read-only visibility into bookings and vehicles
+- BYOI approval dashboard (`/admin/byoi`)
 
 ---
 
@@ -98,10 +117,14 @@ This key is used to fetch and cache fallback images.
 - Search & booking
 - Stripe payments
 - Admin approvals
+- Protection Plans (Basic/Standard/Premium)
+- BYOI upload and approval
+- Liability acceptance (BYOI only)
+- Claims intake
 
 ### Explicitly Excluded (Post-MVP)
 
-- Insurance marketplace
+- Insurance marketplace (Note: Protection Plans are included, but not a marketplace)
 - Messaging system
 - Reviews & ratings
 - GPS / telematics

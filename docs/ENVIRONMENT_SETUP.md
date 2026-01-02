@@ -9,12 +9,14 @@ This document outlines all required and optional environment variables for the D
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 ```
 
 **How to get:**
 1. Go to your Supabase project dashboard
 2. Navigate to Settings > API
-3. Copy the Project URL and anon/public key
+3. Copy the Project URL, anon/public key, and service_role key
+4. **Important**: Service role key bypasses RLS - keep it secure and only use server-side
 
 ### Stripe Configuration
 
