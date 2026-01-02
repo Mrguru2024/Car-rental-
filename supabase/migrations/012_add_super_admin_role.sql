@@ -7,6 +7,20 @@
 -- Create a secure function to add admin users (only callable by service role)
 -- This prevents exposing admin creation to the public API
 
+-- Drop all existing versions of the function (handle overloaded functions)
+DO $$ 
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT oid, proname, pg_get_function_identity_arguments(oid) as args
+              FROM pg_proc 
+              WHERE proname = 'add_admin_user'
+              AND pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')) 
+    LOOP
+        EXECUTE 'DROP FUNCTION IF EXISTS public.add_admin_user(' || r.args || ') CASCADE';
+    END LOOP;
+END $$;
+
 CREATE OR REPLACE FUNCTION add_admin_user(
   p_user_id UUID,
   p_role TEXT,
@@ -79,6 +93,20 @@ REVOKE EXECUTE ON FUNCTION add_admin_user(UUID, TEXT, TEXT, TEXT) FROM anon;
 COMMENT ON FUNCTION add_admin_user IS 'Securely add or update admin users. Only callable with service role key. Allowed roles: admin, prime_admin, super_admin';
 
 -- Create a helper function to list admin users (for verification, also secured)
+-- Drop all existing versions of the function (handle overloaded functions)
+DO $$ 
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT oid, proname, pg_get_function_identity_arguments(oid) as args
+              FROM pg_proc 
+              WHERE proname = 'list_admin_users'
+              AND pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')) 
+    LOOP
+        EXECUTE 'DROP FUNCTION IF EXISTS public.list_admin_users(' || r.args || ') CASCADE';
+    END LOOP;
+END $$;
+
 CREATE OR REPLACE FUNCTION list_admin_users()
 RETURNS TABLE (
   user_id UUID,
