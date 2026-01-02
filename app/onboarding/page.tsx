@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast/ToastProvider'
 import Header from '@/components/Layout/Header'
+import AddressInput from '@/components/Address/AddressInput'
 
 type Role = 'renter' | 'dealer' | 'private_host'
 type Step = 'role' | 'profile' | 'complete'
@@ -441,29 +442,21 @@ export default function OnboardingPage() {
                 </p>
               </div>
 
-              <div>
-                <label
-                  htmlFor="address"
-                  className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2"
-                >
-                  Address <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  id="address"
-                  name="address"
-                  required
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="123 Main St, Atlanta, GA 30301"
-                  rows={3}
-                  className="w-full px-4 py-3 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 resize-none"
-                />
-                <p className="mt-1 text-xs text-brand-gray dark:text-brand-white/70">
-                  {selectedRole === 'renter'
+              <AddressInput
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={(value) => setFormData((prev) => ({ ...prev, address: value }))}
+                placeholder="123 Main St, Atlanta, GA 30301"
+                required
+                rows={3}
+                label="Address"
+                helpText={
+                  selectedRole === 'renter'
                     ? 'This helps us show you vehicles near you.'
-                    : 'This helps renters find your vehicles.'}
-                </p>
-              </div>
+                    : 'This helps renters find your vehicles.'
+                }
+              />
 
               <div className="flex justify-between pt-4">
                 <button

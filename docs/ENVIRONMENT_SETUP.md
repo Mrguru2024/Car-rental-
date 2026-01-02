@@ -54,6 +54,21 @@ openssl rand -hex 32
 
 ## Optional Environment Variables
 
+### Google Places API
+
+```bash
+NEXT_PUBLIC_GOOGLE_PLACES_API_KEY=your_google_places_api_key
+```
+
+**Purpose:** Used for address autocomplete and validation in address input fields
+**How to get:** 
+1. Go to https://console.cloud.google.com/
+2. Create a project and enable Places API
+3. Create an API key and restrict it to Places API
+4. See `docs/GOOGLE_PLACES_SETUP.md` for detailed instructions
+
+**Note:** Required for address autocomplete functionality. If not provided, address fields will work as regular text inputs without autocomplete.
+
 ### OpenCage Geocoding API
 
 ```bash

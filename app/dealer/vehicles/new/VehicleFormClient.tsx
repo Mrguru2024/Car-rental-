@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast/ToastProvider'
+import AddressInput from '@/components/Address/AddressInput'
 
 interface VehicleFormClientProps {
   readonly profileId: string
@@ -220,21 +221,15 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
           />
         </div>
 
-        <div>
-          <label htmlFor="location" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
-            Location <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="location"
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white"
-            placeholder="e.g., Los Angeles, CA"
-          />
-        </div>
+        <AddressInput
+          id="location"
+          name="location"
+          value={formData.location}
+          onChange={(value) => setFormData((prev) => ({ ...prev, location: value }))}
+          placeholder="e.g., Los Angeles, CA"
+          required
+          label="Location"
+        />
 
         <div>
           <label htmlFor="mileage_limit" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">

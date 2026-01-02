@@ -16,7 +16,7 @@ export default async function NewVehiclePage() {
   // Get user profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id')
+    .select('id, role')
     .eq('user_id', user.id)
     .maybeSingle()
 
