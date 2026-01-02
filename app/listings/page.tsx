@@ -97,13 +97,16 @@ export default async function ListingsPage({
   let displayVehicles =
     vehicles && vehicles.length > 0
       ? vehicles
-      : seedVehicles.map((v, idx) => ({
-          id: `placeholder-${idx}`,
-          ...v,
-          status: "active" as const,
-          vehicle_photos: [],
-          created_at: new Date().toISOString(),
-        }));
+      : seedVehicles.map((v, idx) => {
+          const { id: _id, ...rest } = v;
+          return {
+            ...rest,
+            id: `placeholder-${idx}`,
+            status: "active" as const,
+            vehicle_photos: [],
+            created_at: new Date().toISOString(),
+          };
+        });
 
   // Apply location filter to seed/placeholder vehicles (client-side)
   if (location && displayVehicles.length > 0) {

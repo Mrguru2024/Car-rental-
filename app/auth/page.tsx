@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast/ToastProvider'
 import Header from '@/components/Layout/Header'
-import { logAuthEvent, checkSuspiciousLogin } from '@/lib/security/securityMonitoring'
+import { logAuthEvent } from '@/lib/security/auditLog'
+import { checkSuspiciousLogin } from '@/lib/security/securityMonitoring'
 
 export default function AuthPage() {
   const router = useRouter()

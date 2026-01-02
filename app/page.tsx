@@ -44,13 +44,16 @@ export default async function HomePage() {
   const displayVehicles =
     vehicles && vehicles.length > 0
       ? vehicles
-      : seedVehicles.slice(0, 6).map((v, idx) => ({
-          id: `placeholder-${idx}`,
-          ...v,
-          status: "active" as const,
-          vehicle_photos: [],
-          created_at: new Date().toISOString(),
-        }));
+      : seedVehicles.slice(0, 6).map((v, idx) => {
+          const { id: _id, ...rest } = v;
+          return {
+            ...rest,
+            id: `placeholder-${idx}`,
+            status: "active" as const,
+            vehicle_photos: [],
+            created_at: new Date().toISOString(),
+          };
+        });
 
   return (
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">

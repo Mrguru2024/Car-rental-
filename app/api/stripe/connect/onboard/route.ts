@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     // Get user profile
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, role')
+      .select('id, role, stripe_connect_account_id')
       .eq('user_id', user.id)
       .single()
 

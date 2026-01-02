@@ -114,7 +114,8 @@ export async function canAccessBooking(bookingId: string, userId: string): Promi
   }
 
   // Check if user is renter or vehicle owner
-  if (booking.renter_id === userId || booking.vehicles?.dealer_id === userId) {
+  const vehicle = Array.isArray(booking.vehicles) ? booking.vehicles[0] : booking.vehicles
+  if (booking.renter_id === userId || vehicle?.dealer_id === userId) {
     return true
   }
 

@@ -130,8 +130,9 @@ export async function POST(request: Request) {
     }
   }
 
-  // Handle transfer events (optional - for tracking transfer status)
-  if (event.type === 'transfer.created' || event.type === 'transfer.paid') {
+  // Handle transfer.created event (optional - for tracking transfer status)
+  // Note: transfer.paid doesn't exist in Stripe API - transfers are paid per payout schedule
+  if (event.type === 'transfer.created') {
     const transfer = event.data.object as Stripe.Transfer
 
     try {
@@ -141,7 +142,7 @@ export async function POST(request: Request) {
       const { error: updateError } = await supabase
         .from('bookings')
         .update({
-          payout_status: event.type === 'transfer.paid' ? 'paid_out' : 'transferred',
+          payout_status: 'transferred',
         })
         .eq('stripe_transfer_id', transfer.id)
 
