@@ -8,6 +8,10 @@ export default async function DocumentAuditPage() {
   // Protect route - only Prime Admins can access
   const { user } = await protectPrimeAdminRoute()
 
+  if (!user) {
+    redirect('/')
+  }
+
   const supabase = await createClient()
 
   // Get full profile with id for current auditor

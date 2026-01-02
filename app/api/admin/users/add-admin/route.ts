@@ -87,7 +87,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase.rpc('list_admin_users')
 
