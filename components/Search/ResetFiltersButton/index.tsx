@@ -26,7 +26,7 @@ export default function ResetFiltersButton({ formId }: ResetFiltersButtonProps) 
     <button
       type="button"
       onClick={handleReset}
-      className="w-full sm:w-auto flex-shrink-0 px-3 sm:px-4 py-2.5 border border-brand-gray dark:border-brand-navy rounded-lg hover:bg-brand-gray/10 dark:hover:bg-brand-navy/50 transition-colors font-medium text-brand-navy dark:text-brand-white flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap text-sm sm:text-base min-h-[42px]"
+      className="w-full xl:w-auto flex-shrink-0 px-3 py-2.5 border border-brand-gray dark:border-brand-navy rounded-lg hover:bg-brand-gray/10 dark:hover:bg-brand-navy/50 transition-colors font-medium text-brand-navy dark:text-white flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap text-sm sm:text-base min-h-[42px]"
       suppressHydrationWarning
       title="Reset all filters"
       aria-label="Reset all filters"

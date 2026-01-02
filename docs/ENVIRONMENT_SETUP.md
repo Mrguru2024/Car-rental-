@@ -1,6 +1,6 @@
 # Environment Variables Setup
 
-This document outlines all required and optional environment variables for the Drivana application.
+This document outlines all required and optional environment variables for the Carsera application.
 
 ## Required Environment Variables
 

@@ -5,21 +5,21 @@ import { ToastProvider } from '@/components/Toast/ToastProvider'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Drivana',
-    template: '%s | Drivana',
+    default: 'Carsera',
+    template: '%s | Carsera',
   },
-  description: 'Rent cars from dealers and private owners in Atlanta. Drivana connects you with trusted local dealers and private hosts for affordable car rentals.',
-  keywords: ['car rental', 'rent a car', 'Atlanta car rental', 'Drivana', 'vehicle rental', 'car sharing'],
+  description: 'Carsera — Where Cars Meet Renters. Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs with trusted local dealers.',
+  keywords: ['car rental', 'rent a car', 'Atlanta car rental', 'Carsera', 'vehicle rental', 'car sharing'],
   openGraph: {
-    title: 'Drivana - Rent Cars from Local Dealers',
-    description: 'Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs.',
+    title: 'Carsera — Where Cars Meet Renters',
+    description: 'Carsera — Where Cars Meet Renters. Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs.',
     type: 'website',
-    siteName: 'Drivana',
+    siteName: 'Carsera',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Drivana - Rent Cars from Local Dealers',
-    description: 'Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs.',
+    title: 'Carsera — Where Cars Meet Renters',
+    description: 'Carsera — Where Cars Meet Renters. Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs.',
   },
 }
 

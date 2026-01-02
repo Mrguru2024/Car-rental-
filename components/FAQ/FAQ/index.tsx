@@ -10,7 +10,7 @@ interface FAQItem {
 
 const defaultFAQs: FAQItem[] = [
   {
-    question: 'How do I rent a car on Drivana?',
+    question: 'How do I rent a car on Carsera?',
     answer: 'Browse available vehicles, select your dates, and complete the booking process. You\'ll need to verify your identity and provide payment information.',
   },
   {
@@ -23,14 +23,14 @@ const defaultFAQs: FAQItem[] = [
   },
   {
     question: 'What happens if I damage the vehicle?',
-    answer: 'Drivana provides insurance coverage for all rentals. Contact support immediately if any damage occurs during your rental period.',
+    answer: 'Carsera provides insurance coverage for all rentals. Contact support immediately if any damage occurs during your rental period.',
   },
   {
     question: 'Can I cancel my booking?',
     answer: 'Yes, you can cancel your booking. Cancellation policies vary by vehicle and are clearly stated at the time of booking.',
   },
   {
-    question: 'How do I become a dealer on Drivana?',
+    question: 'How do I become a dealer on Carsera?',
     answer: 'Sign up as a dealer, complete the verification process, and start listing your vehicles. Our team will guide you through the onboarding process.',
   },
 ]
@@ -46,7 +46,7 @@ export default function FAQ() {
     setOpenIndex(openIndex === index ? null : index)
   }
 
-  const handleAskDrivana = async (e: React.FormEvent) => {
+  const handleAskCarsera = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!askQuestion.trim()) {
       showToast('Please enter a question', 'error')
@@ -64,7 +64,7 @@ export default function FAQ() {
       // Simulated AI response - replace with actual API call
       const response = `Based on your question about "${askQuestion}", here's what I found:
 
-Drivana is a platform that connects renters with trusted local dealers and private vehicle owners. You can browse available vehicles, book rentals, and manage your bookings all in one place.
+Carsera is a platform that connects renters with trusted local dealers and private vehicle owners. You can browse available vehicles, book rentals, and manage your bookings all in one place.
 
 For specific questions about:
 - Booking process: Check our FAQ section above
@@ -90,11 +90,11 @@ Would you like more specific information about any of these topics?`
           Frequently Asked Questions
         </h1>
         <p className="text-lg text-brand-gray dark:text-brand-white/70">
-          Find answers to common questions about Drivana
+          Find answers to common questions about Carsera
         </p>
       </div>
 
-      {/* Ask Drivana AI Section */}
+      {/* Ask Carsera AI Section */}
       <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 mb-12 border border-brand-white dark:border-brand-navy/50">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-brand-blue dark:bg-brand-blue-light flex items-center justify-center">
@@ -113,14 +113,14 @@ Would you like more specific information about any of these topics?`
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-brand-navy dark:text-brand-white">
-            Ask Drivana
+            Ask Carsera
           </h2>
         </div>
         <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-          Have a question? Ask our AI assistant and get instant answers about Drivana.
+          Have a question? Ask our AI assistant and get instant answers about Carsera.
         </p>
 
-        <form onSubmit={handleAskDrivana} className="space-y-4">
+        <form onSubmit={handleAskCarsera} className="space-y-4">
           <div>
             <label htmlFor="ai-question" className="sr-only">
               Ask a question
@@ -129,7 +129,7 @@ Would you like more specific information about any of these topics?`
               id="ai-question"
               value={askQuestion}
               onChange={(e) => setAskQuestion(e.target.value)}
-              placeholder="Ask anything about Drivana, bookings, vehicles, or policies..."
+              placeholder="Ask anything about Carsera, bookings, vehicles, or policies..."
               rows={3}
               className="w-full px-4 py-3 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 resize-none"
               disabled={isAsking}
@@ -179,7 +179,7 @@ Would you like more specific information about any of these topics?`
                     d="M13 10V3L4 14h7v7l9-11h-7z"
                   />
                 </svg>
-                Ask Drivana
+                Ask Carsera
               </>
             )}
           </button>

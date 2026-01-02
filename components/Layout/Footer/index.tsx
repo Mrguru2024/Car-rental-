@@ -10,11 +10,10 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="text-2xl font-bold text-brand-blue-light mb-4 inline-block">
-              Drivana
+              Carsera
             </Link>
             <p className="text-brand-white/70 mb-4 max-w-md">
-              Rent cars from trusted local dealers and private owners in Atlanta. 
-              Find the perfect vehicle for your needs with Drivana.
+              Carsera — Where Cars Meet Renters. Rent cars from trusted local dealers and private owners in Atlanta.
             </p>
             <div className="flex space-x-4">
               <a
@@ -89,7 +88,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@drivana.com" className="text-brand-white/70 hover:text-brand-blue-light transition-colors">
+                <a href="mailto:support@carsera.com" className="text-brand-white/70 hover:text-brand-blue-light transition-colors">
                   Contact Us
                 </a>
               </li>
@@ -119,7 +118,7 @@ export default function Footer() {
 
         <div className="mt-8 pt-8 border-t border-brand-navy/20 dark:border-brand-navy/50">
           <p className="text-center text-brand-white/70 text-sm">
-            © {currentYear} Drivana. All rights reserved.
+            © {currentYear} Carsera. All rights reserved.
           </p>
         </div>
       </div>

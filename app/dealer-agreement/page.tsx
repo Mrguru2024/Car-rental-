@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Dealer Agreement & Policy',
-  description: 'Drivana Dealer Agreement and Policy - Terms and conditions for dealers and hosts listing vehicles on the platform.',
+  description: 'Carsera Dealer Agreement and Policy - Terms and conditions for dealers and hosts listing vehicles on the platform.',
 }
 
 export default async function DealerAgreementPage() {
@@ -33,10 +33,10 @@ export default async function DealerAgreementPage() {
               1. Agreement to Terms
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              By listing a vehicle on Drivana, you ("Dealer," "Host," or "you") agree to be bound by this Dealer Agreement & Policy ("Agreement"), our Terms of Service, and our Privacy Policy. This Agreement supplements and does not replace our Terms of Service.
+              By listing a vehicle on Carsera, you ("Dealer," "Host," or "you") agree to be bound by this Dealer Agreement & Policy ("Agreement"), our Terms of Service, and our Privacy Policy. This Agreement supplements and does not replace our Terms of Service.
             </p>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              If you do not agree to this Agreement, you may not list vehicles on Drivana.
+              If you do not agree to this Agreement, you may not list vehicles on Carsera.
             </p>
           </section>
 
@@ -48,7 +48,7 @@ export default async function DealerAgreementPage() {
               2.1 Dealer Requirements
             </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              To list vehicles on Drivana, you must:
+              To list vehicles on Carsera, you must:
             </p>
             <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
               <li>Be at least 18 years old</li>
@@ -64,7 +64,7 @@ export default async function DealerAgreementPage() {
               2.2 Verification Process
             </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Drivana requires verification of:
+              Carsera requires verification of:
             </p>
             <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
               <li>Identity (government-issued ID)</li>
@@ -117,7 +117,7 @@ export default async function DealerAgreementPage() {
               3.3 Listing Modifications
             </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              You may update listings at any time, but changes to active bookings require renter consent. Drivana reserves the right to edit, suspend, or remove listings that violate this Agreement or our policies.
+              You may update listings at any time, but changes to active bookings require renter consent. Carsera reserves the right to edit, suspend, or remove listings that violate this Agreement or our policies.
             </p>
           </section>
 
@@ -178,7 +178,7 @@ export default async function DealerAgreementPage() {
               5.2 Insurance Claims
             </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              You are responsible for filing insurance claims for vehicle damage. Drivana is not responsible for insurance coverage, claims, or disputes. You agree to cooperate with insurance investigations and provide necessary documentation.
+              You are responsible for filing insurance claims for vehicle damage. Carsera is not responsible for insurance coverage, claims, or disputes. You agree to cooperate with insurance investigations and provide necessary documentation.
             </p>
           </section>
 
@@ -190,28 +190,28 @@ export default async function DealerAgreementPage() {
               6.1 Pricing
             </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              You set your own rental prices. Prices must be competitive and reasonable. Drivana reserves the right to reject or adjust prices that are unreasonably high or low.
+              You set your own rental prices. Prices must be competitive and reasonable. Carsera reserves the right to reject or adjust prices that are unreasonably high or low.
             </p>
 
             <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
               6.2 Payment Processing
             </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Payments are processed through Stripe. You will receive payment (minus Drivana's service fee) after the rental period begins. Payment schedules and fees are disclosed in your account settings.
+              Payments are processed through Stripe. You will receive payment (minus Carsera's service fee) after the rental period begins. Payment schedules and fees are disclosed in your account settings.
             </p>
 
             <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
               6.3 Service Fees
             </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Drivana charges a service fee on each completed rental. Fees are clearly disclosed and deducted from your payment. Service fees are non-refundable.
+              Carsera charges a service fee on each completed rental. Fees are clearly disclosed and deducted from your payment. Service fees are non-refundable.
             </p>
 
             <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
               6.4 Taxes
             </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              You are responsible for collecting and remitting all applicable taxes, including sales tax, rental tax, and income tax. Drivana may assist with tax collection where required by law, but you remain ultimately responsible for tax compliance.
+              You are responsible for collecting and remitting all applicable taxes, including sales tax, rental tax, and income tax. Carsera may assist with tax collection where required by law, but you remain ultimately responsible for tax compliance.
             </p>
           </section>
 
@@ -258,7 +258,7 @@ export default async function DealerAgreementPage() {
               <li>Reasonable and justified</li>
             </ul>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Drivana may assist with dispute resolution, but you are responsible for pursuing claims through insurance or legal channels.
+              Carsera may assist with dispute resolution, but you are responsible for pursuing claims through insurance or legal channels.
             </p>
 
             <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
@@ -277,7 +277,7 @@ export default async function DealerAgreementPage() {
               You agree not to:
             </p>
             <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
-              <li>Circumvent Drivana's payment system or fees</li>
+              <li>Circumvent Carsera's payment system or fees</li>
               <li>Contact renters outside the platform to avoid fees</li>
               <li>Discriminate against renters based on protected characteristics</li>
               <li>Harass, abuse, or threaten renters</li>
@@ -301,7 +301,7 @@ export default async function DealerAgreementPage() {
               <li>Post false or defamatory reviews</li>
             </ul>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Drivana reserves the right to remove reviews that violate our policies.
+              Carsera reserves the right to remove reviews that violate our policies.
             </p>
           </section>
 
@@ -310,7 +310,7 @@ export default async function DealerAgreementPage() {
               11. Termination
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Drivana may suspend or terminate your account and remove your listings if you:
+              Carsera may suspend or terminate your account and remove your listings if you:
             </p>
             <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
               <li>Violate this Agreement or our Terms of Service</li>
@@ -340,7 +340,7 @@ export default async function DealerAgreementPage() {
               <li>Technical issues or service interruptions</li>
             </ul>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Your use of Drivana is at your own risk. You are solely responsible for your vehicles, listings, and rentals.
+              Your use of Carsera is at your own risk. You are solely responsible for your vehicles, listings, and rentals.
             </p>
           </section>
 
@@ -349,7 +349,7 @@ export default async function DealerAgreementPage() {
               13. Indemnification
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              You agree to indemnify, defend, and hold harmless Drivana, its officers, directors, employees, and agents from and against any claims, damages, losses, liabilities, and expenses (including legal fees) arising from:
+              You agree to indemnify, defend, and hold harmless Carsera, its officers, directors, employees, and agents from and against any claims, damages, losses, liabilities, and expenses (including legal fees) arising from:
             </p>
             <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
               <li>Your vehicle listings or rentals</li>
@@ -365,7 +365,7 @@ export default async function DealerAgreementPage() {
               14. Changes to Agreement
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              We may update this Agreement from time to time. Material changes will be notified via email or platform notification. Your continued use of Drivana after changes constitutes acceptance of the updated Agreement.
+              We may update this Agreement from time to time. Material changes will be notified via email or platform notification. Your continued use of Carsera after changes constitutes acceptance of the updated Agreement.
             </p>
           </section>
 
@@ -377,15 +377,15 @@ export default async function DealerAgreementPage() {
               For questions about this Agreement, contact:
             </p>
             <div className="bg-brand-gray/10 dark:bg-brand-navy/50 rounded-lg p-4">
-              <p className="text-brand-navy dark:text-brand-white font-semibold mb-2">Drivana Dealer Support</p>
-              <p className="text-brand-gray dark:text-brand-white/70">Email: <a href="mailto:dealers@drivana.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">dealers@drivana.com</a></p>
-              <p className="text-brand-gray dark:text-brand-white/70">Support: <a href="mailto:support@drivana.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">support@drivana.com</a></p>
+              <p className="text-brand-navy dark:text-brand-white font-semibold mb-2">Carsera Dealer Support</p>
+              <p className="text-brand-gray dark:text-brand-white/70">Email: <a href="mailto:dealers@carsera.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">dealers@carsera.com</a></p>
+              <p className="text-brand-gray dark:text-brand-white/70">Support: <a href="mailto:support@carsera.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">support@carsera.com</a></p>
             </div>
           </section>
 
           <div className="mt-12 p-6 bg-brand-blue/10 dark:bg-brand-blue/20 rounded-lg border border-brand-blue/20 dark:border-brand-blue/30">
             <p className="text-brand-navy dark:text-brand-white font-semibold mb-2">
-              By listing a vehicle on Drivana, you acknowledge that you have read, understood, and agree to be bound by this Dealer Agreement & Policy.
+              By listing a vehicle on Carsera, you acknowledge that you have read, understood, and agree to be bound by this Dealer Agreement & Policy.
             </p>
           </div>
         </div>

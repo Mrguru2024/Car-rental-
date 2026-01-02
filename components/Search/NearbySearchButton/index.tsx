@@ -234,7 +234,7 @@ export default function NearbySearchButton({ onLocationFound, inputId }: NearbyS
       type="button"
       onClick={handleClick}
       disabled={isLoading}
-      className="px-2 sm:px-2.5 py-1.5 bg-brand-blue dark:bg-brand-blue-light text-white dark:text-white rounded-md hover:bg-brand-blue-dark dark:hover:bg-brand-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-1.5 text-xs font-medium"
+      className="px-2.5 py-1.5 bg-brand-blue dark:bg-brand-blue-light text-white dark:text-white rounded-md hover:bg-brand-blue-dark dark:hover:bg-brand-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 text-xs font-medium"
       title="Use my current location"
       aria-label="Use my current location"
       suppressHydrationWarning
@@ -283,7 +283,7 @@ export default function NearbySearchButton({ onLocationFound, inputId }: NearbyS
           />
         </svg>
       )}
-      <span className="hidden xs:inline sm:hidden md:inline text-xs">{isLoading ? 'Locating...' : 'Near Me'}</span>
+      <span className="hidden sm:inline text-xs">{isLoading ? 'Locating...' : 'Near Me'}</span>
     </button>
   )
 }

@@ -204,10 +204,10 @@ export default function OnboardingPage() {
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-lg dark:shadow-brand-navy/30 p-8 border border-brand-white dark:border-brand-navy/50">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-brand-navy dark:text-brand-white mb-2">
-                Welcome to Drivana!
+                Welcome to Carsera!
               </h1>
               <p className="text-brand-gray dark:text-brand-white/70">
-                Let's get you started. First, tell us how you'd like to use Drivana.
+                Let's get you started. First, tell us how you'd like to use Carsera.
               </p>
             </div>
 

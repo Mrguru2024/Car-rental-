@@ -6,12 +6,12 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'About Us',
-  description: 'Learn about Drivana\'s mission to revolutionize car rentals by connecting local dealers with renters in Atlanta. Discover our purpose and how we\'re building a better rental experience.',
+  description: 'Learn about Carsera\'s mission to revolutionize car rentals by connecting local dealers with renters in Atlanta. Discover our purpose and how we\'re building a better rental experience.',
   openGraph: {
-    title: 'About Us | Drivana',
-    description: 'Learn about Drivana\'s mission to revolutionize car rentals by connecting local dealers with renters in Atlanta.',
+    title: 'About Us | Carsera',
+    description: 'Learn about Carsera\'s mission to revolutionize car rentals by connecting local dealers with renters in Atlanta.',
     type: 'website',
-    siteName: 'Drivana',
+    siteName: 'Carsera',
   },
 }
 
@@ -29,7 +29,7 @@ export default async function AboutPage() {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-brand-navy dark:text-brand-white mb-6">
-            About Drivana
+            About Carsera
           </h1>
           <p className="text-xl md:text-2xl text-brand-gray dark:text-brand-white/70 max-w-3xl mx-auto">
             Revolutionizing car rentals by connecting local dealers with renters, 

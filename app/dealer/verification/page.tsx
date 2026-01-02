@@ -196,7 +196,7 @@ export default function DealerVerificationPage() {
               Dealer Verification
             </h1>
             <p className="text-brand-gray dark:text-brand-white/70">
-              To list vehicles on Drivana, we need to verify your business. This usually takes 1-2
+              To list vehicles on Carsera, we need to verify your business. This usually takes 1-2
               business days.
             </p>
           </div>

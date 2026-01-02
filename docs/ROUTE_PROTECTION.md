@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the route protection strategy for Drivana, ensuring that:
+This document outlines the route protection strategy for Carsera, ensuring that:
 1. Public pages are accessible without authentication
 2. Protected pages require authentication
 3. Role-based access control is enforced

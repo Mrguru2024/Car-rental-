@@ -1,6 +1,6 @@
 # Tailwind Brand Color & Typography Enforcement Guide
 
-## Drivana – UI Build Rules
+## Carsera – UI Build Rules
 
 ---
 

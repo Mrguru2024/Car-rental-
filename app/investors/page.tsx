@@ -6,12 +6,12 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Investors',
-  description: 'Investment opportunities with Drivana. Learn about our business model, growth potential, and how to get involved in revolutionizing the car rental industry.',
+  description: 'Investment opportunities with Carsera. Learn about our business model, growth potential, and how to get involved in revolutionizing the car rental industry.',
   openGraph: {
-    title: 'Investors | Drivana',
-    description: 'Investment opportunities with Drivana. Learn about our business model and growth potential.',
+    title: 'Investors | Carsera',
+    description: 'Investment opportunities with Carsera. Learn about our business model and growth potential.',
     type: 'website',
-    siteName: 'Drivana',
+    siteName: 'Carsera',
   },
 }
 
@@ -73,7 +73,7 @@ export default async function InvestorsPage() {
                   Our Advantage
                 </h3>
                 <p className="text-brand-gray dark:text-brand-white/80 leading-relaxed mb-4">
-                  Drivana combines the best of marketplace models with automated trust systems, 
+                  Carsera combines the best of marketplace models with automated trust systems, 
                   creating a defensible position in the market through technology and community.
                 </p>
                 <ul className="space-y-2 text-brand-gray dark:text-brand-white/70">
@@ -164,7 +164,7 @@ export default async function InvestorsPage() {
                 </h3>
                 <p className="text-brand-gray dark:text-brand-white/70 leading-relaxed">
                   Deep penetration in the Atlanta market, building strong relationships with local dealers 
-                  and establishing Drivana as the go-to platform for car rentals. Focus on quality over 
+                  and establishing Carsera as the go-to platform for car rentals. Focus on quality over 
                   quantity, ensuring high satisfaction rates and organic growth.
                 </p>
               </div>
@@ -278,7 +278,7 @@ export default async function InvestorsPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="mailto:investors@drivana.com"
+              href="mailto:investors@carsera.com"
               className="px-8 py-3 bg-brand-white text-brand-navy rounded-lg font-semibold hover:bg-brand-white/90 transition-colors"
             >
               Contact Investors Relations
@@ -292,7 +292,7 @@ export default async function InvestorsPage() {
           </div>
           <div className="mt-8 pt-8 border-t border-white/20">
             <p className="text-white/80">
-              <strong>Email:</strong> <a href="mailto:investors@drivana.com" className="underline hover:text-white">investors@drivana.com</a>
+              <strong>Email:</strong> <a href="mailto:investors@carsera.com" className="underline hover:text-white">investors@carsera.com</a>
             </p>
             <p className="text-white/80 mt-2">
               <strong>Subject Line:</strong> Investment Inquiry

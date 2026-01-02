@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Drivana Privacy Policy - Learn how we collect, use, and protect your personal information and location data.',
+  description: 'Carsera Privacy Policy - Learn how we collect, use, and protect your personal information and location data.',
 }
 
 export default async function PrivacyPolicyPage() {
@@ -33,7 +33,7 @@ export default async function PrivacyPolicyPage() {
               1. Introduction
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Drivana ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our car rental platform, including our website, mobile application, and related services (collectively, the "Service").
+              Carsera ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our car rental platform, including our website, mobile application, and related services (collectively, the "Service").
             </p>
             <p className="text-brand-gray dark:text-brand-white/70">
               By using the Service, you agree to the collection and use of information in accordance with this policy. If you do not agree with our policies and practices, do not use the Service.
@@ -194,7 +194,7 @@ export default async function PrivacyPolicyPage() {
               <li><strong>Account Deletion:</strong> Delete your account through account settings</li>
             </ul>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              To exercise these rights, contact us at <a href="mailto:privacy@drivana.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">privacy@drivana.com</a>.
+              To exercise these rights, contact us at <a href="mailto:privacy@carsera.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">privacy@carsera.com</a>.
             </p>
           </section>
 
@@ -253,9 +253,9 @@ export default async function PrivacyPolicyPage() {
               If you have questions about this Privacy Policy, please contact us at:
             </p>
             <div className="bg-brand-gray/10 dark:bg-brand-navy/50 rounded-lg p-4">
-              <p className="text-brand-navy dark:text-brand-white font-semibold mb-2">Drivana</p>
-              <p className="text-brand-gray dark:text-brand-white/70">Email: <a href="mailto:privacy@drivana.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">privacy@drivana.com</a></p>
-              <p className="text-brand-gray dark:text-brand-white/70">Support: <a href="mailto:support@drivana.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">support@drivana.com</a></p>
+              <p className="text-brand-navy dark:text-brand-white font-semibold mb-2">Carsera</p>
+              <p className="text-brand-gray dark:text-brand-white/70">Email: <a href="mailto:privacy@carsera.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">privacy@carsera.com</a></p>
+              <p className="text-brand-gray dark:text-brand-white/70">Support: <a href="mailto:support@carsera.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">support@carsera.com</a></p>
             </div>
           </section>
         </div>

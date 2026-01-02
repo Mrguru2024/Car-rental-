@@ -97,7 +97,7 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
     : parseInt(maxMileage || String(MAX_MILES))
 
   return (
-    <div className="sm:col-span-2 lg:col-span-2 w-full min-w-0">
+    <div className="sm:col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 w-full min-w-0">
       <label htmlFor="mileage-range" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
         Mileage Limit Range
       </label>
@@ -114,7 +114,7 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
               max={MAX_MILES}
               step="50"
               defaultValue={minMileage || '0'}
-              className="w-full h-2 bg-brand-gray/20 dark:bg-brand-navy rounded-lg appearance-none cursor-pointer accent-brand-blue dark:accent-brand-blue-light max-w-full"
+              className="w-full h-2 bg-brand-gray/20 dark:bg-brand-navy rounded-lg appearance-none cursor-pointer accent-brand-blue dark:accent-brand-blue-light"
             />
           </div>
           <div className="flex-1 min-w-0 w-full">
@@ -127,7 +127,7 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
               max={MAX_MILES}
               step="50"
               defaultValue={String(initialMaxValue)}
-              className="w-full h-2 bg-brand-gray/20 dark:bg-brand-navy rounded-lg appearance-none cursor-pointer accent-brand-blue dark:accent-brand-blue-light max-w-full"
+              className="w-full h-2 bg-brand-gray/20 dark:bg-brand-navy rounded-lg appearance-none cursor-pointer accent-brand-blue dark:accent-brand-blue-light"
             />
             {/* Hidden input for form submission with "unlimited" value when at max */}
             <input

@@ -1,6 +1,6 @@
 # Media Assets Directory
 
-This directory contains image and video media assets for Drivana.
+This directory contains image and video media assets for Carsera.
 
 ## Structure
 

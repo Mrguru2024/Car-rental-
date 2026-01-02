@@ -2,7 +2,7 @@
 
 ## Overview
 
-Drivana implements comprehensive security measures to protect consumer privacy and dealer data. This document outlines our security architecture, data protection measures, and compliance practices.
+Carsera implements comprehensive security measures to protect consumer privacy and dealer data. This document outlines our security architecture, data protection measures, and compliance practices.
 
 ## Security Architecture
 
@@ -181,7 +181,7 @@ In the event of a data breach:
 
 For security concerns or to report vulnerabilities:
 
-- **Email**: security@drivana.com
+- **Email**: security@carsera.com
 - **Subject**: Security Issue Report
 - **Response Time**: Within 24 hours for critical issues
 

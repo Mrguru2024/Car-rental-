@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'Drivana Terms of Service - Read our terms and conditions for using the car rental platform.',
+  description: 'Carsera Terms of Service - Read our terms and conditions for using the car rental platform.',
 }
 
 export default async function TermsOfServicePage() {
@@ -33,7 +33,7 @@ export default async function TermsOfServicePage() {
               1. Acceptance of Terms
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              By accessing or using Drivana ("we," "our," or "us"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these Terms, you may not access the Service.
+              By accessing or using Carsera ("we," "our," or "us"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these Terms, you may not access the Service.
             </p>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
               These Terms apply to all users of the Service, including renters, dealers, hosts, and visitors. Additional terms may apply to specific features or services.
@@ -45,7 +45,7 @@ export default async function TermsOfServicePage() {
               2. Description of Service
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Drivana is a platform that connects vehicle owners (dealers and private hosts) with renters seeking to rent vehicles. We facilitate transactions but are not a party to rental agreements between users. We are not a rental car company, dealer, or insurance provider.
+              Carsera is a platform that connects vehicle owners (dealers and private hosts) with renters seeking to rent vehicles. We facilitate transactions but are not a party to rental agreements between users. We are not a rental car company, dealer, or insurance provider.
             </p>
           </section>
 
@@ -118,7 +118,7 @@ export default async function TermsOfServicePage() {
               5.2 Rental Agreements
             </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Each rental creates a direct contract between the renter and the vehicle owner. Drivana is not a party to these agreements. We facilitate the transaction but are not responsible for:
+              Each rental creates a direct contract between the renter and the vehicle owner. Carsera is not a party to these agreements. We facilitate the transaction but are not responsible for:
             </p>
             <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
               <li>Vehicle condition or performance</li>
@@ -158,7 +158,7 @@ export default async function TermsOfServicePage() {
               <li>Comply with Stripe's terms of service</li>
             </ul>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Drivana charges a service fee on each transaction. Fees are clearly disclosed before booking. All fees are non-refundable except as required by law or as specified in our cancellation policy.
+              Carsera charges a service fee on each transaction. Fees are clearly disclosed before booking. All fees are non-refundable except as required by law or as specified in our cancellation policy.
             </p>
           </section>
 
@@ -170,7 +170,7 @@ export default async function TermsOfServicePage() {
               Cancellation policies vary by vehicle and are set by the vehicle owner. Cancellation terms are displayed at the time of booking. Refunds, if applicable, will be processed according to the cancellation policy and may take 5-10 business days.
             </p>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Drivana reserves the right to cancel bookings in cases of fraud, safety concerns, or violations of these Terms.
+              Carsera reserves the right to cancel bookings in cases of fraud, safety concerns, or violations of these Terms.
             </p>
           </section>
 
@@ -185,7 +185,7 @@ export default async function TermsOfServicePage() {
               <strong>DRIVANA IS NOT AN INSURANCE PROVIDER.</strong> We do not provide insurance coverage. Users are solely responsible for obtaining appropriate insurance coverage.
             </p>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              To the maximum extent permitted by law, Drivana disclaims all liability for:
+              To the maximum extent permitted by law, Carsera disclaims all liability for:
             </p>
             <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
               <li>Vehicle damage, loss, or theft</li>
@@ -215,7 +215,7 @@ export default async function TermsOfServicePage() {
               10. Indemnification
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              You agree to indemnify, defend, and hold harmless Drivana, its officers, directors, employees, and agents from and against any claims, damages, losses, liabilities, and expenses (including legal fees) arising from:
+              You agree to indemnify, defend, and hold harmless Carsera, its officers, directors, employees, and agents from and against any claims, damages, losses, liabilities, and expenses (including legal fees) arising from:
             </p>
             <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
               <li>Your use of the Service</li>
@@ -231,7 +231,7 @@ export default async function TermsOfServicePage() {
               11. Intellectual Property
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              The Service and its content, features, and functionality are owned by Drivana and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, or create derivative works without our written permission.
+              The Service and its content, features, and functionality are owned by Carsera and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, or create derivative works without our written permission.
             </p>
           </section>
 
@@ -279,9 +279,9 @@ export default async function TermsOfServicePage() {
               If you have questions about these Terms, please contact us at:
             </p>
             <div className="bg-brand-gray/10 dark:bg-brand-navy/50 rounded-lg p-4">
-              <p className="text-brand-navy dark:text-brand-white font-semibold mb-2">Drivana</p>
-              <p className="text-brand-gray dark:text-brand-white/70">Email: <a href="mailto:legal@drivana.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">legal@drivana.com</a></p>
-              <p className="text-brand-gray dark:text-brand-white/70">Support: <a href="mailto:support@drivana.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">support@drivana.com</a></p>
+              <p className="text-brand-navy dark:text-brand-white font-semibold mb-2">Carsera</p>
+              <p className="text-brand-gray dark:text-brand-white/70">Email: <a href="mailto:legal@carsera.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">legal@carsera.com</a></p>
+              <p className="text-brand-gray dark:text-brand-white/70">Support: <a href="mailto:support@carsera.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">support@carsera.com</a></p>
             </div>
           </section>
         </div>

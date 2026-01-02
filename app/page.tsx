@@ -12,17 +12,17 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Home',
-  description: 'Drivana - Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs with trusted local dealers.',
+  description: 'Carsera — Where Cars Meet Renters. Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs with trusted local dealers.',
   openGraph: {
-    title: 'Drivana - Rent Cars from Local Dealers',
-    description: 'Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs with trusted local dealers.',
+    title: 'Carsera — Where Cars Meet Renters',
+    description: 'Carsera — Where Cars Meet Renters. Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs with trusted local dealers.',
     type: 'website',
-    siteName: 'Drivana',
+    siteName: 'Carsera',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Drivana - Rent Cars from Local Dealers',
-    description: 'Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs with trusted local dealers.',
+    title: 'Carsera — Where Cars Meet Renters',
+    description: 'Carsera — Where Cars Meet Renters. Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs with trusted local dealers.',
   },
 }
 
@@ -81,14 +81,14 @@ export default async function HomePage() {
 
       {/* Search Bar */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 md:-mt-24 relative z-20 w-full">
-        <div className="bg-white dark:bg-brand-navy-light rounded-lg shadow-lg dark:shadow-brand-navy/30 p-4 sm:p-6 border border-brand-white dark:border-brand-navy/50 overflow-hidden w-full">
+        <div className="bg-white dark:bg-brand-navy-light rounded-lg shadow-lg dark:shadow-brand-navy/30 p-4 sm:p-6 border border-brand-white dark:border-brand-navy/50 w-full">
           <form
             action="/listings"
             method="get"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 w-full max-w-full"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full max-w-full"
             suppressHydrationWarning
           >
-            <div className="sm:col-span-2 lg:col-span-1 w-full min-w-0">
+            <div className="sm:col-span-2 md:col-span-2 lg:col-span-1 xl:col-span-1 w-full min-w-0">
               <label htmlFor="location" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-1.5">
                 Location
               </label>
@@ -98,7 +98,7 @@ export default async function HomePage() {
                   type="text"
                   name="location"
                   placeholder="Atlanta, GA"
-                  className="w-full px-3 sm:px-4 py-2 pr-20 sm:pr-24 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 text-sm sm:text-base max-w-full"
+                  className="w-full px-3 sm:px-4 py-2 pr-24 sm:pr-28 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 text-sm sm:text-base"
                   defaultValue="Atlanta, GA"
                   suppressHydrationWarning
                 />
@@ -115,7 +115,7 @@ export default async function HomePage() {
                 id="start_date"
                 type="date"
                 name="start_date"
-                className="w-full px-3 sm:px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 text-sm sm:text-base max-w-full"
+                className="w-full px-3 sm:px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 text-sm sm:text-base"
                 suppressHydrationWarning
               />
             </div>
@@ -127,15 +127,15 @@ export default async function HomePage() {
                 id="end_date"
                 type="date"
                 name="end_date"
-                className="w-full px-3 sm:px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 text-sm sm:text-base max-w-full"
+                className="w-full px-3 sm:px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70 text-sm sm:text-base"
                 suppressHydrationWarning
               />
             </div>
             <MileageSlider />
-            <div className="sm:col-span-2 lg:col-span-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
+            <div className="sm:col-span-2 md:col-span-4 lg:col-span-1 xl:col-span-1 flex flex-col xl:flex-row items-stretch xl:items-center gap-2 w-full min-w-0">
               <button
                 type="submit"
-                className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 bg-brand-blue dark:bg-brand-blue-light text-white dark:text-white rounded-lg hover:bg-brand-blue-dark dark:hover:bg-brand-blue transition-colors font-medium text-sm sm:text-base whitespace-nowrap flex items-center justify-center min-h-[42px]"
+                className="w-full xl:flex-1 px-4 py-2.5 bg-brand-blue dark:bg-brand-blue-light text-white dark:text-white rounded-lg hover:bg-brand-blue-dark dark:hover:bg-brand-blue transition-colors font-medium text-sm sm:text-base whitespace-nowrap flex items-center justify-center min-h-[42px]"
                 suppressHydrationWarning
               >
                 Search

@@ -14,7 +14,7 @@ export async function generateListingMetadata(
     description?: string | null
   }
 ): Promise<Metadata> {
-  const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} - Drivana in ${vehicle.location}`
+  const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} - Carsera in ${vehicle.location}`
   const description =
     vehicle.description ||
     `Rent a ${vehicle.year} ${vehicle.make} ${vehicle.model} in ${vehicle.location}. Starting at $${vehicle.price_per_day}/day.`
@@ -26,13 +26,13 @@ export async function generateListingMetadata(
       title,
       description,
       type: 'website',
-      siteName: 'Drivana',
+      siteName: 'Carsera',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      site: '@Drivana',
+      site: '@Carsera',
     },
   }
 }
@@ -50,7 +50,7 @@ export function generateListingJsonLd(vehicle: {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
-    description: vehicle.description || `Rent this vehicle on Drivana in ${vehicle.location}`,
+    description: vehicle.description || `Rent this vehicle on Carsera in ${vehicle.location}`,
     brand: {
       '@type': 'Brand',
       name: vehicle.make,
@@ -66,7 +66,7 @@ export function generateListingJsonLd(vehicle: {
       availability: 'https://schema.org/InStock',
       seller: {
         '@type': 'Organization',
-        name: 'Drivana',
+        name: 'Carsera',
       },
     },
     locationCreated: {

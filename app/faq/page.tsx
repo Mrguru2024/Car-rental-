@@ -6,17 +6,17 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'FAQ',
-  description: 'Frequently asked questions about Drivana. Get answers about car rentals, bookings, policies, and more. Ask Drivana AI for instant help.',
+  description: 'Frequently asked questions about Carsera. Get answers about car rentals, bookings, policies, and more. Ask Carsera AI for instant help.',
   openGraph: {
-    title: 'FAQ | Drivana',
-    description: 'Frequently asked questions about Drivana. Get answers about car rentals, bookings, policies, and more.',
+    title: 'FAQ | Carsera',
+    description: 'Frequently asked questions about Carsera. Get answers about car rentals, bookings, policies, and more.',
     type: 'website',
-    siteName: 'Drivana',
+    siteName: 'Carsera',
   },
   twitter: {
     card: 'summary',
-    title: 'FAQ | Drivana',
-    description: 'Frequently asked questions about Drivana. Get answers about car rentals, bookings, policies, and more.',
+    title: 'FAQ | Carsera',
+    description: 'Frequently asked questions about Carsera. Get answers about car rentals, bookings, policies, and more.',
   },
 }
 
