@@ -12,15 +12,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user profile to check role
+    // Get user profile to check role and onboarding completion
     const { data: profile } = await supabase
       .from('profiles')
       .select('role, verification_status, id')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (!profile || profile.role !== 'renter') {
-      return NextResponse.json({ error: 'Only renters can create bookings' }, { status: 403 })
+    // Check if user has completed onboarding
+    if (!profile) {
+      return NextResponse.json({ 
+        error: 'Please complete onboarding to book vehicles' 
+      }, { status: 403 })
+    }
+
+    // Only renters can create bookings
+    if (profile.role !== 'renter') {
+      return NextResponse.json({ 
+        error: 'Only renters can create bookings. Please update your profile.' 
+      }, { status: 403 })
+    }
+
+    // Block rejected verification users
+    if (profile.verification_status === 'rejected') {
+      return NextResponse.json({ 
+        error: 'Your verification was rejected. Please contact support.' 
+      }, { status: 403 })
     }
 
     const body = await request.json()

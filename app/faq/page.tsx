@@ -28,7 +28,7 @@ export default async function FAQPage() {
 
   return (
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white flex flex-col">
-      <Header user={user} />
+      <Header />
       <main className="flex-1">
         <FAQ />
       </main>

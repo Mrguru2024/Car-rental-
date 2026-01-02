@@ -126,7 +126,7 @@ export default async function VehicleDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Header user={user} />
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
@@ -250,6 +250,9 @@ export default async function VehicleDetailPage({
                   >
                     Sign In to Book
                   </Link>
+                  <p className="text-sm text-brand-gray dark:text-brand-white/50 mt-4">
+                    Or continue browsing as a guest
+                  </p>
                 </div>
               )}
             </div>

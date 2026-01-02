@@ -23,7 +23,7 @@ export default async function InvestorsPage() {
 
   return (
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
-      <Header user={user} />
+      <Header />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Hero Section */}

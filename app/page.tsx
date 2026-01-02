@@ -58,7 +58,7 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
       {/* Header */}
-      <Header user={user} />
+      <Header />
 
       {/* Hero Section */}
       <section className="relative bg-brand-navy dark:bg-brand-white py-20 overflow-visible min-h-[500px] flex items-center pb-32">

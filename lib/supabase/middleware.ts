@@ -1,15 +1,61 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { applySecurityHeaders } from '@/lib/security/securityHeaders'
+
+/**
+ * Apply security headers to response (inline to avoid Edge Runtime import issues)
+ */
+function applySecurityHeaders(response: NextResponse): NextResponse {
+  // Content Security Policy
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.opencagedata.com; frame-src https://js.stripe.com https://hooks.stripe.com;"
+  )
+
+  // X-Frame-Options: Prevent clickjacking
+  response.headers.set('X-Frame-Options', 'DENY')
+
+  // X-Content-Type-Options: Prevent MIME type sniffing
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+
+  // X-XSS-Protection: Enable XSS filtering
+  response.headers.set('X-XSS-Protection', '1; mode=block')
+
+  // Referrer-Policy: Control referrer information
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+
+  // Permissions-Policy: Restrict browser features
+  response.headers.set(
+    'Permissions-Policy',
+    'geolocation=(self), camera=(), microphone=(), payment=(self)'
+  )
+
+  // Strict-Transport-Security: Force HTTPS (only in production)
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains; preload'
+    )
+  }
+
+  return response
+}
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase environment variables in middleware')
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {

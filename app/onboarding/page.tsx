@@ -42,8 +42,10 @@ export default function OnboardingPage() {
         .from('profiles')
         .select('role, verification_status')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
 
+      // If profile exists and no error, redirect based on role and verification status
+      // Note: Errors (404 from RLS or missing record) are ignored - user needs onboarding
       if (profile) {
         // User already has a profile, redirect to appropriate dashboard
         if (profile.role === 'renter') {
@@ -100,15 +102,26 @@ export default function OnboardingPage() {
         return
       }
 
-      // Create or update profile
-      const { error } = await supabase.from('profiles').upsert({
-        user_id: user.id,
-        role: selectedRole,
-        full_name: formData.full_name,
-        phone: formData.phone,
-        address: formData.address,
-        verification_status: 'pending',
-      })
+      // Create or update profile (user_id should be unique for upsert to work correctly)
+      if (!selectedRole) {
+        showToast('Please select a role', 'error')
+        setSubmitting(false)
+        return
+      }
+
+      const { error } = await supabase.from('profiles').upsert(
+        {
+          user_id: user.id,
+          role: selectedRole,
+          full_name: formData.full_name,
+          phone: formData.phone,
+          address: formData.address,
+          verification_status: 'pending',
+        },
+        {
+          onConflict: 'user_id',
+        }
+      )
 
       if (error) throw error
 
@@ -143,7 +156,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
-      <Header user={null} />
+      <Header />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Progress Indicator */}
