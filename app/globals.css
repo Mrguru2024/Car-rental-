@@ -14,14 +14,9 @@
 
 @layer base {
   body {
-    background-color: #F5F7FA; /* brand-white - Page background */
-    color: #0B1C2D; /* brand-navy - App shell, header, footer */
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: Arial, Helvetica, sans-serif;
-  }
-
-  .dark body {
-    background-color: #0B1C2D; /* brand-navy - App shell, header, footer */
-    color: #F5F7FA; /* brand-white - Page background */
   }
 }
 
@@ -31,78 +26,82 @@
   }
 }
 
-@layer components {
-  /* Range slider styling - using regular CSS as @apply doesn't work with pseudo-elements */
-  input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    background: transparent;
-    cursor: pointer;
-    width: 100%;
-    height: 8px;
-  }
-  
-  input[type="range"]::-webkit-slider-track {
-    background: #D1D5DB; /* gray-300 for light theme visibility */
-    height: 8px;
-    border-radius: 4px;
-  }
-  
-  .dark input[type="range"]::-webkit-slider-track {
-    background: #1A2F47; /* brand-navy for dark theme */
-  }
-  
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    background: #1F6AE1; /* brand-blue */
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    border: 2px solid #F5F7FA; /* brand-white */
-    margin-top: -6px;
-    cursor: pointer;
-  }
-  
-  .dark input[type="range"]::-webkit-slider-thumb {
-    background: #4A8AED; /* brand-blue-light */
-    border-color: #0B1C2D; /* brand-navy */
-  }
-  
-  input[type="range"]::-moz-range-track {
-    background: #D1D5DB; /* gray-300 for light theme visibility */
-    height: 8px;
-    border-radius: 4px;
-    border: none;
-  }
-  
-  .dark input[type="range"]::-moz-range-track {
-    background: #1A2F47; /* brand-navy for dark theme */
-  }
-  
-  input[type="range"]::-moz-range-thumb {
-    background: #1F6AE1; /* brand-blue */
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    border: 2px solid #F5F7FA; /* brand-white */
-    cursor: pointer;
-  }
-  
-  .dark input[type="range"]::-moz-range-thumb {
-    background: #4A8AED; /* brand-blue-light */
-    border-color: #0B1C2D; /* brand-navy */
-  }
-  
-  input[type="range"]:focus {
-    outline: none;
-  }
-  
-  input[type="range"]:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px rgba(31, 106, 225, 0.2);
-  }
-  
-  .dark input[type="range"]:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px rgba(74, 138, 237, 0.2);
-  }
+/* Range slider styling - Custom CSS required for pseudo-elements that Tailwind cannot handle */
+/* Must be outside @layer for proper specificity with pseudo-elements */
+input[type="range"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  cursor: pointer;
+  width: 100%;
+  height: 8px;
+}
+
+/* Light theme - WebKit browsers (Chrome, Safari, Edge) */
+input[type="range"]::-webkit-slider-runnable-track {
+  background: #374151 !important;
+  height: 8px !important;
+  border-radius: 4px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #1F6AE1 !important;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  border: 2px solid #F5F7FA !important;
+  margin-top: -6px;
+  cursor: pointer;
+}
+
+/* Light theme - Firefox */
+input[type="range"]::-moz-range-track {
+  background: #374151 !important;
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  background: #1F6AE1 !important;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  border: 2px solid #F5F7FA !important;
+  cursor: pointer;
+}
+
+/* Dark theme - WebKit browsers */
+html.dark input[type="range"]::-webkit-slider-runnable-track {
+  background: #6B7280 !important;
+}
+
+html.dark input[type="range"]::-webkit-slider-thumb {
+  background: #4A8AED !important;
+  border-color: #0B1C2D !important;
+}
+
+/* Dark theme - Firefox */
+html.dark input[type="range"]::-moz-range-track {
+  background: #6B7280 !important;
+}
+
+html.dark input[type="range"]::-moz-range-thumb {
+  background: #4A8AED !important;
+  border-color: #0B1C2D !important;
+}
+
+/* Focus states */
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(31, 106, 225, 0.2);
+}
+
+html.dark input[type="range"]:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(74, 138, 237, 0.2);
 }

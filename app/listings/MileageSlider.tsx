@@ -2,6 +2,76 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+// Inline styles for range slider - required because pseudo-elements need direct CSS
+const sliderStyles = `
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    width: 100%;
+    height: 8px;
+  }
+  /* WebKit browsers - use runnable-track for better compatibility */
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: #374151;
+    height: 8px;
+    border-radius: 4px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #1F6AE1;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    border: 2px solid #F5F7FA;
+    margin-top: -6px;
+    cursor: pointer;
+  }
+  /* Firefox */
+  input[type="range"]::-moz-range-track {
+    background: #374151;
+    height: 8px;
+    border-radius: 4px;
+    border: none;
+  }
+  input[type="range"]::-moz-range-thumb {
+    background: #1F6AE1;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    border: 2px solid #F5F7FA;
+    cursor: pointer;
+  }
+  /* Dark theme - WebKit */
+  html.dark input[type="range"]::-webkit-slider-runnable-track {
+    background: #6B7280;
+  }
+  html.dark input[type="range"]::-webkit-slider-thumb {
+    background: #4A8AED;
+    border-color: #0B1C2D;
+  }
+  /* Dark theme - Firefox */
+  html.dark input[type="range"]::-moz-range-track {
+    background: #6B7280;
+  }
+  html.dark input[type="range"]::-moz-range-thumb {
+    background: #4A8AED;
+    border-color: #0B1C2D;
+  }
+  /* Focus states */
+  input[type="range"]:focus {
+    outline: none;
+  }
+  input[type="range"]:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(31, 106, 225, 0.2);
+  }
+  html.dark input[type="range"]:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(74, 138, 237, 0.2);
+  }
+`
+
 interface MileageSliderProps {
   minMileage?: string
   maxMileage?: string
@@ -97,10 +167,12 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
     : parseInt(maxMileage || String(MAX_MILES))
 
   return (
-    <div className="sm:col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 w-full min-w-0">
-      <label htmlFor="mileage-range" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
-        Mileage Limit Range
-      </label>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: sliderStyles }} />
+      <div className="sm:col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 w-full min-w-0">
+        <label htmlFor="mileage-range" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
+          Mileage Limit Range
+        </label>
       <div className="space-y-2 w-full">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full">
           <div className="flex-1 min-w-0 w-full">
@@ -114,7 +186,7 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
               max={MAX_MILES}
               step="50"
               defaultValue={minMileage || '0'}
-              className="w-full"
+              className="w-full h-2"
             />
           </div>
           <div className="flex-1 min-w-0 w-full">
@@ -127,7 +199,7 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
               max={MAX_MILES}
               step="50"
               defaultValue={String(initialMaxValue)}
-              className="w-full"
+              className="w-full h-2"
             />
             {/* Hidden input for form submission with "unlimited" value when at max */}
             <input
@@ -148,5 +220,6 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
         </div>
       </div>
     </div>
+    </>
   )
 }

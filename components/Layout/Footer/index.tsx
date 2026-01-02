@@ -12,7 +12,7 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="mb-4 inline-block">
               <Image
-                src="/media/images/Untitled design.svg"
+                src="/media/images/2.svg"
                 alt="Carsera Logo"
                 width={400}
                 height={120}

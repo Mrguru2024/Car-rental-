@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   },
   description: 'Carsera — Where Cars Meet Renters. Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs with trusted local dealers.',
   keywords: ['car rental', 'rent a car', 'Atlanta car rental', 'Carsera', 'vehicle rental', 'car sharing'],
+  icons: {
+    icon: '/media/images/2.svg',
+    shortcut: '/media/images/2.svg',
+    apple: '/media/images/2.svg',
+  },
   openGraph: {
     title: 'Carsera — Where Cars Meet Renters',
     description: 'Carsera — Where Cars Meet Renters. Rent cars from dealers and private owners in Atlanta. Find the perfect vehicle for your needs.',

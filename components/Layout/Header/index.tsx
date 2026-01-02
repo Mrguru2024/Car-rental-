@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import ThemeToggle from '@/components/Theme/ThemeToggle'
+import { useTheme } from '@/lib/contexts/ThemeContext'
 
 interface HeaderProps {
   user?: {
@@ -13,6 +14,11 @@ interface HeaderProps {
 }
 
 export default function Header({ user }: HeaderProps) {
+  const { resolvedTheme } = useTheme()
+  const logoSrc = resolvedTheme === 'dark' 
+    ? '/media/images/2.svg' 
+    : '/media/images/Untitled design.svg'
+
   return (
     <header className="bg-white dark:bg-brand-navy shadow-sm dark:shadow-brand-navy/30 border-b border-brand-white dark:border-brand-navy/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -20,7 +26,7 @@ export default function Header({ user }: HeaderProps) {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               <Image
-                src="/media/images/Untitled design.svg"
+                src={logoSrc}
                 alt="Carsera Logo"
                 width={400}
                 height={120}
