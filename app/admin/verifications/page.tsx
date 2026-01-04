@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Header from '@/components/Layout/Header'
-import VerificationApprovalClient from './VerificationApprovalClient'
+import VerificationApprovalWrapper from './VerificationApprovalWrapper'
 
 export default async function AdminVerificationsPage() {
   const supabase = await createClient()
@@ -24,14 +24,20 @@ export default async function AdminVerificationsPage() {
     redirect('/')
   }
 
-  // Fetch pending and rejected verifications
+  // Fetch pending and rejected verifications (exclude admin roles - they are pre-approved)
   const { data: pendingVerifications, error: pendingError } = await supabase
     .from('profiles')
     .select(
       'id, user_id, role, full_name, phone, address, verification_status, verification_documents, drivers_license_number, drivers_license_state, drivers_license_expiration, business_name, business_license_number, business_address, tax_id, created_at, updated_at'
     )
     .in('verification_status', ['pending', 'rejected'])
+    .not('role', 'in', '(admin,prime_admin,super_admin)')
     .order('created_at', { ascending: false })
+
+  // Log error if query fails
+  if (pendingError) {
+    console.error('Error fetching pending verifications:', pendingError)
+  }
 
   // Get verification states for additional context
   const userIds = pendingVerifications?.map((p) => p.id) || []
@@ -60,7 +66,7 @@ export default async function AdminVerificationsPage() {
           </p>
         </div>
 
-        <VerificationApprovalClient
+        <VerificationApprovalWrapper
           verifications={pendingVerifications || []}
           verificationStates={verificationStatesMap}
         />

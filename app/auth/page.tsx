@@ -14,6 +14,8 @@ function AuthPageContent() {
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -137,10 +139,12 @@ function AuthPageContent() {
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      // Support both email and phone login
+      const loginCredentials = loginMethod === 'email' 
+        ? { email, password }
+        : { phone, password }
+
+      const { data, error } = await supabase.auth.signInWithPassword(loginCredentials as any)
 
       if (error) throw error
 
@@ -173,7 +177,7 @@ function AuthPageContent() {
           redirectUrl = profile.verification_status === 'approved' ? '/renter' : '/renter/verification'
         } else if (profile.role === 'dealer' || profile.role === 'private_host') {
           redirectUrl = profile.verification_status === 'approved' ? '/dealer' : '/dealer/verification'
-        } else if (profile.role === 'admin') {
+        } else if (profile.role === 'admin' || profile.role === 'prime_admin' || profile.role === 'super_admin') {
           redirectUrl = '/admin'
         }
       }
@@ -454,19 +458,63 @@ function AuthPageContent() {
           {/* Sign In Form */}
           {activeTab === 'signin' && (
             <form onSubmit={handleSignIn} className="space-y-4">
+              {/* Login Method Toggle */}
+              <div className="flex gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginMethod('email')
+                    setPhone('')
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    loginMethod === 'email'
+                      ? 'bg-brand-blue dark:bg-brand-blue-light text-white'
+                      : 'bg-brand-gray/10 dark:bg-brand-navy/50 text-brand-navy dark:text-brand-white/70 hover:bg-brand-gray/20 dark:hover:bg-brand-navy/70'
+                  }`}
+                >
+                  Email
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginMethod('phone')
+                    setEmail('')
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    loginMethod === 'phone'
+                      ? 'bg-brand-blue dark:bg-brand-blue-light text-white'
+                      : 'bg-brand-gray/10 dark:bg-brand-navy/50 text-brand-navy dark:text-brand-white/70 hover:bg-brand-gray/20 dark:hover:bg-brand-navy/70'
+                  }`}
+                >
+                  Phone
+                </button>
+              </div>
+
               <div>
-                <label htmlFor="signin-email" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-1">
-                  Email Address
+                <label htmlFor={loginMethod === 'email' ? 'signin-email' : 'signin-phone'} className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-1">
+                  {loginMethod === 'email' ? 'Email Address' : 'Phone Number'}
                 </label>
-                <input
-                  id="signin-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                  className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70"
-                />
+                {loginMethod === 'email' ? (
+                  <input
+                    id="signin-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    required
+                    className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70"
+                  />
+                ) : (
+                  <input
+                    id="signin-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+1234567890"
+                    required
+                    className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light focus:border-transparent bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white placeholder:text-brand-gray dark:placeholder:text-brand-gray/70"
+                  />
+                )}
               </div>
               <div>
                 <label htmlFor="signin-password" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-1">

@@ -29,6 +29,11 @@ export default async function AdminDashboardPage() {
   }
 
   // Get overview statistics
+  // For super admin, also get signup statistics
+  const isSuperAdmin = profile?.role === 'super_admin'
+  const { createAdminClient } = await import('@/lib/supabase/admin')
+  const adminSupabase = isSuperAdmin ? createAdminClient() : null
+
   const [
     { count: totalUsers },
     { count: totalRenters },
@@ -53,7 +58,7 @@ export default async function AdminDashboardPage() {
     supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'confirmed'),
     supabase
       .from('bookings')
-      .select('*, vehicles(id, make, model, year), profiles!bookings_renter_id_fkey(id, full_name)')
+      .select('id, start_date, end_date, status, total_price, created_at, vehicles(id, make, model, year), profiles!bookings_renter_id_fkey(id, full_name)')
       .order('created_at', { ascending: false })
       .limit(10),
     supabase
@@ -66,12 +71,38 @@ export default async function AdminDashboardPage() {
     supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
-      .eq('verification_status', 'pending'),
+      .eq('verification_status', 'pending')
+      .not('role', 'in', '(admin,prime_admin,super_admin)'),
     supabase
       .from('bookings')
       .select('total_price')
       .in('status', ['confirmed', 'completed']),
   ])
+
+  // Get signup statistics (super admin only - requires admin client)
+  let totalSignups = 0
+  let pendingOnboardingCount = 0
+  
+  if (isSuperAdmin && adminSupabase) {
+    try {
+      // Get all auth users
+      const { data: { users: authUsers } } = await adminSupabase.auth.admin.listUsers()
+      totalSignups = authUsers?.length || 0
+
+      // Get all profile user_ids
+      const { data: profiles } = await adminSupabase
+        .from('profiles')
+        .select('user_id')
+      
+      const profileUserIds = new Set(profiles?.map(p => p.user_id) || [])
+      
+      // Count users without profiles (pending onboarding)
+      pendingOnboardingCount = authUsers?.filter(user => !profileUserIds.has(user.id)).length || 0
+    } catch (error) {
+      console.error('Error fetching signup statistics:', error)
+      // Continue with default values if there's an error
+    }
+  }
 
   // Calculate total revenue
   const totalRevenue =
@@ -130,7 +161,27 @@ export default async function AdminDashboardPage() {
         )}
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-2 fold:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 xs:gap-4 sm:gap-6 mb-6 xs:mb-8">
+        <div className={`grid grid-cols-2 fold:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 ${isSuperAdmin ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-3 xs:gap-4 sm:gap-6 mb-6 xs:mb-8`}>
+          {/* Total Signups (Super Admin Only) */}
+          {isSuperAdmin && (
+            <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
+              <h3 className="text-sm font-medium text-brand-gray dark:text-brand-white/70 mb-1">
+                Total Signups
+              </h3>
+              <p className="text-3xl font-bold text-brand-blue dark:text-brand-blue-light">
+                {totalSignups || 0}
+              </p>
+              <div className="mt-2 flex flex-col gap-1 text-xs text-brand-gray dark:text-brand-white/50">
+                <span>{totalUsers || 0} with profiles</span>
+                {pendingOnboardingCount > 0 && (
+                  <span className="text-orange-600 dark:text-orange-400">
+                    {pendingOnboardingCount} pending onboarding
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
             <h3 className="text-sm font-medium text-brand-gray dark:text-brand-white/70 mb-1">
               Total Users
@@ -142,6 +193,11 @@ export default async function AdminDashboardPage() {
               <span>{totalRenters || 0} renters</span>
               <span>{totalDealers || 0} dealers</span>
             </div>
+            {(pendingVerificationsCount || 0) > 0 && (
+              <div className="mt-2 text-xs text-orange-600 dark:text-orange-400">
+                {pendingVerificationsCount || 0} pending verification
+              </div>
+            )}
           </div>
 
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
@@ -218,6 +274,11 @@ export default async function AdminDashboardPage() {
               <p className="text-sm text-brand-gray dark:text-brand-white/70">
                 Review user verifications
               </p>
+              {pendingOnboardingCount > 0 && (
+                <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                  {pendingOnboardingCount} pending onboarding
+                </p>
+              )}
             </Link>
 
             <Link
@@ -271,6 +332,11 @@ export default async function AdminDashboardPage() {
               <p className="text-sm text-brand-gray dark:text-brand-white/70">
                 Review user verifications
               </p>
+              {isSuperAdmin && pendingOnboardingCount > 0 && (
+                <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                  {pendingOnboardingCount} pending onboarding
+                </p>
+              )}
             </Link>
 
             <Link
@@ -308,6 +374,25 @@ export default async function AdminDashboardPage() {
                 Manage user roles and permissions
               </p>
             </Link>
+
+            {profile?.role === 'super_admin' && (
+              <Link
+                href="/admin/admins"
+                className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border-2 border-purple-200 dark:border-purple-800/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                    Admin Management
+                  </h3>
+                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-xs font-semibold rounded-full">
+                    Super Admin
+                  </span>
+                </div>
+                <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                  Create and manage admin users
+                </p>
+              </Link>
+            )}
 
             {(profile?.role === 'prime_admin' || profile?.role === 'super_admin') && (
               <Link

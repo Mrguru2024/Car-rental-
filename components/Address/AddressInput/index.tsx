@@ -41,11 +41,17 @@ export default function AddressInput({
 
   // Initialize autocomplete callback
   const initializeAutocomplete = useCallback(
-    (element: HTMLInputElement | HTMLTextAreaElement) => {
-      if (!element || !window.google?.maps?.places || autocompleteRef.current) return
+    (element: HTMLInputElement | HTMLTextAreaElement | null) => {
+      // Google Places Autocomplete only works with HTMLInputElement, not HTMLTextAreaElement
+      // Skip autocomplete initialization for textarea elements
+      if (!element || !(element instanceof HTMLInputElement)) {
+        return
+      }
+      
+      if (!window.google?.maps?.places || autocompleteRef.current) return
 
       try {
-        // Google Places Autocomplete works with both input and textarea elements
+        // Google Places Autocomplete only works with input elements
         const autocomplete = new window.google.maps.places.Autocomplete(element, {
           types: ['address'],
           fields: [
@@ -104,7 +110,16 @@ export default function AddressInput({
 
   // Load Google Places API script
   useEffect(() => {
-    const element = rows > 1 ? textareaRef.current : inputRef.current
+    // Google Places Autocomplete only works with input elements, not textarea
+    // Skip autocomplete initialization if using textarea (rows > 1)
+    if (rows > 1) {
+      return
+    }
+
+    // Helper to get the current element (always fresh from refs)
+    const getElement = () => inputRef.current
+
+    const element = getElement()
     if (!element) return
 
     // Check if Google Places API is already loaded
@@ -130,10 +145,12 @@ export default function AddressInput({
       const maxAttempts = 50 // 5 seconds max wait time
       const checkInterval = setInterval(() => {
         attempts++
-        if (window.google?.maps?.places) {
+        // Get fresh element reference inside the interval
+        const currentElement = getElement()
+        if (window.google?.maps?.places && currentElement) {
           setIsLoaded(true)
           clearInterval(checkInterval)
-          initializeAutocomplete(element)
+          initializeAutocomplete(currentElement)
         } else if (attempts >= maxAttempts) {
           clearInterval(checkInterval)
           setError('Failed to load Google Places API')
@@ -148,9 +165,11 @@ export default function AddressInput({
     script.async = true
     script.defer = true
     script.onload = () => {
-      if (window.google?.maps?.places) {
+      // Get fresh element reference in onload
+      const currentElement = getElement()
+      if (window.google?.maps?.places && currentElement) {
         setIsLoaded(true)
-        initializeAutocomplete(element)
+        initializeAutocomplete(currentElement)
       } else {
         setError('Failed to load Google Places API')
       }
@@ -171,7 +190,12 @@ export default function AddressInput({
 
   // Re-initialize when element becomes available and API is loaded
   useEffect(() => {
-    const element = rows > 1 ? textareaRef.current : inputRef.current
+    // Skip autocomplete initialization if using textarea (rows > 1)
+    if (rows > 1) {
+      return
+    }
+
+    const element = inputRef.current
     if (isLoaded && element && !autocompleteRef.current) {
       initializeAutocomplete(element)
     }

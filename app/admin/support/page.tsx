@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Header from '@/components/Layout/Header'
-import SupportClient from './SupportClient'
+import SupportWrapper from './SupportWrapper'
 import { protectAdminRoute } from '@/lib/security/routeProtection'
 
 export default async function SupportPage() {
@@ -36,11 +36,12 @@ export default async function SupportPage() {
       vehicles: Array.isArray(booking.vehicles) ? booking.vehicles[0] || null : booking.vehicles || null,
     })) || []
 
-  // Get pending verifications count
+  // Get pending verifications count (exclude admin roles - they are pre-approved)
   const { count: pendingVerificationsCount } = await supabase
     .from('profiles')
     .select('*', { count: 'exact', head: true })
     .eq('verification_status', 'pending')
+    .not('role', 'in', '(admin,prime_admin,super_admin)')
 
   // Get pending BYOI count
   const { count: pendingByoiCount } = await supabase
@@ -80,7 +81,7 @@ export default async function SupportPage() {
           </p>
         </div>
 
-        <SupportClient
+        <SupportWrapper
           recentBookings={recentBookings}
           recentClaims={recentClaims}
           pendingVerificationsCount={pendingVerificationsCount || 0}

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Header from '@/components/Layout/Header'
-import PermissionsClient from './PermissionsClient'
+import PermissionsWrapper from './PermissionsWrapper'
 import { protectPrimeAdminRoute } from '@/lib/security/routeProtection'
 
 export default async function PermissionsPage() {
@@ -52,7 +52,11 @@ export default async function PermissionsPage() {
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'super_admin'),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).in('role', ['dealer', 'private_host']),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'renter'),
-    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('verification_status', 'pending'),
+    supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('verification_status', 'pending')
+      .not('role', 'in', '(admin,prime_admin,super_admin)'),
   ])
 
   return (
@@ -140,7 +144,7 @@ export default async function PermissionsPage() {
           </div>
         </div>
 
-        <PermissionsClient
+        <PermissionsWrapper
           initialUsers={enrichedUsers}
           totalUsers={totalUsers || 0}
           currentUserRole={profile.role}

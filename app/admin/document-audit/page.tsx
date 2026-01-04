@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Header from '@/components/Layout/Header'
-import DocumentAuditClient from './DocumentAuditClient'
+import DocumentAuditWrapper from './DocumentAuditWrapper'
 import { protectPrimeAdminRoute } from '@/lib/security/routeProtection'
 
 export default async function DocumentAuditPage() {
@@ -105,7 +105,7 @@ export default async function DocumentAuditPage() {
           </div>
         </div>
 
-        <DocumentAuditClient
+        <DocumentAuditWrapper
           flaggedAudits={flaggedAudits || []}
           pendingAudits={pendingAudits || []}
           currentAuditorId={currentProfile?.id || null}

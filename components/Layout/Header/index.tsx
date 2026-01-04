@@ -54,9 +54,10 @@ export default function Header() {
   }, [supabase])
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
+    // Sign out and redirect immediately
+    supabase.auth.signOut().catch(console.error)
+    // Use window.location for instant redirect
+    window.location.href = '/'
   }
 
   const getDashboardLink = () => {

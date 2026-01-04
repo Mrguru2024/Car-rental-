@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Header from '@/components/Layout/Header'
-import ByoiApprovalClient from './ByoiApprovalClient'
+import ByoiApprovalWrapper from './ByoiApprovalWrapper'
 
 export default async function ByoiApprovalPage() {
   const supabase = await createClient()
@@ -45,7 +45,7 @@ export default async function ByoiApprovalPage() {
           Review and approve Bring Your Own Insurance documents submitted by renters.
         </p>
 
-        <ByoiApprovalClient byoiDocs={byoiDocs || []} />
+        <ByoiApprovalWrapper byoiDocs={byoiDocs || []} />
       </div>
     </div>
   )

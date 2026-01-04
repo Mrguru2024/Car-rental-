@@ -22,5 +22,8 @@ export function formatDateLong(date: Date | string): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
   }).format(d)
 }
