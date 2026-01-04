@@ -145,6 +145,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Function to log security events
+-- Uses SECURITY DEFINER to bypass RLS and allow logging from any context
 CREATE OR REPLACE FUNCTION log_security_event(
   p_user_id UUID,
   p_event_type TEXT,
@@ -154,7 +155,11 @@ CREATE OR REPLACE FUNCTION log_security_event(
   p_user_agent TEXT,
   p_metadata JSONB
 )
-RETURNS UUID AS $$
+RETURNS UUID
+LANGUAGE plpgsql
+SECURITY DEFINER -- Runs with creator's privileges to bypass RLS
+SET search_path = public
+AS $$
 DECLARE
   event_id UUID;
 BEGIN
@@ -166,4 +171,4 @@ BEGIN
   
   RETURN event_id;
 END;
-$$ LANGUAGE plpgsql;
+$$;
