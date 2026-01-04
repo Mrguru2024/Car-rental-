@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast/ToastProvider'
 import AddressInput from '@/components/Address/AddressInput'
+import MakeAutocomplete from '@/components/Vehicle/MakeAutocomplete'
+import ModelAutocomplete from '@/components/Vehicle/ModelAutocomplete'
 
 interface VehicleEditClientProps {
   readonly vehicleId: string
@@ -17,6 +19,7 @@ export default function VehicleEditClient({ vehicleId, initialData }: VehicleEdi
   const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
+    vin: initialData.vin || '',
     make: initialData.make || '',
     model: initialData.model || '',
     year: initialData.year || new Date().getFullYear(),
@@ -31,6 +34,7 @@ export default function VehicleEditClient({ vehicleId, initialData }: VehicleEdi
   )
   const [newPhotos, setNewPhotos] = useState<File[]>([])
   const [newPhotoPreviews, setNewPhotoPreviews] = useState<string[]>([])
+  const [vinLookupLoading, setVinLookupLoading] = useState(false)
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -45,16 +49,17 @@ export default function VehicleEditClient({ vehicleId, initialData }: VehicleEdi
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    setNewPhotos(files)
+    setNewPhotos((prev) => [...prev, ...files])
 
-    // Create previews
+    // Create previews for new files only (preserve existing Auto.dev URLs)
     const newPreviews: string[] = []
     files.forEach((file) => {
       const reader = new FileReader()
       reader.onloadend = () => {
         newPreviews.push(reader.result as string)
         if (newPreviews.length === files.length) {
-          setNewPhotoPreviews(newPreviews)
+          // Append new file previews to existing previews (which may include Auto.dev URLs)
+          setNewPhotoPreviews((prev) => [...prev, ...newPreviews])
         }
       }
       reader.readAsDataURL(file)
@@ -121,6 +126,7 @@ export default function VehicleEditClient({ vehicleId, initialData }: VehicleEdi
       const { error: vehicleError } = await supabase
         .from('vehicles')
         .update({
+          vin: formData.vin || null,
           make: formData.make,
           model: formData.model,
           year: formData.year,
@@ -134,7 +140,16 @@ export default function VehicleEditClient({ vehicleId, initialData }: VehicleEdi
 
       if (vehicleError) throw vehicleError
 
-      // Upload new photos
+      // Handle new photos: Auto.dev URLs and uploaded files
+      const photoUrls: string[] = []
+
+      // Add Auto.dev photos (from newPhotoPreviews that are URLs)
+      const autoDevPhotos = newPhotoPreviews.filter((preview) => preview.startsWith('http'))
+      if (autoDevPhotos.length > 0) {
+        photoUrls.push(...autoDevPhotos)
+      }
+
+      // Upload user-uploaded photos
       if (newPhotos.length > 0) {
         const {
           data: { user },
@@ -142,25 +157,23 @@ export default function VehicleEditClient({ vehicleId, initialData }: VehicleEdi
         if (!user) throw new Error('Not authenticated')
 
         const timestamp = Date.now()
-        const photoUrls: string[] = []
-
         for (let i = 0; i < newPhotos.length; i++) {
           const path = `${user.id}/vehicles/${vehicleId}/${timestamp}-${i}.jpg`
           const url = await uploadFile(newPhotos[i], path)
           photoUrls.push(url)
         }
+      }
 
-        // Create vehicle_photos records
-        if (photoUrls.length > 0) {
-          const { error: photosError } = await supabase.from('vehicle_photos').insert(
-            photoUrls.map((url) => ({
-              vehicle_id: vehicleId,
-              file_path: url,
-            }))
-          )
+      // Create vehicle_photos records
+      if (photoUrls.length > 0) {
+        const { error: photosError } = await supabase.from('vehicle_photos').insert(
+          photoUrls.map((url) => ({
+            vehicle_id: vehicleId,
+            file_path: url,
+          }))
+        )
 
-          if (photosError) throw photosError
-        }
+        if (photosError) throw photosError
       }
 
       showToast('Vehicle updated successfully!', 'success')
@@ -174,19 +187,49 @@ export default function VehicleEditClient({ vehicleId, initialData }: VehicleEdi
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* VIN Lookup Section */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-3">
+          Quick Fill with VIN (Optional)
+        </h3>
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <input
+              type="text"
+              value={formData.vin}
+              onChange={(e) => setFormData((prev) => ({ ...prev, vin: e.target.value.toUpperCase() }))}
+              placeholder="Enter 17-character VIN (e.g., WP0AF2A99KS165242)"
+              maxLength={17}
+              className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white uppercase"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleVINLookup}
+            disabled={vinLookupLoading || !formData.vin || formData.vin.length !== 17}
+            className="px-6 py-2 bg-brand-blue text-white rounded-lg hover:bg-brand-blue/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            {vinLookupLoading ? 'Looking up...' : 'Lookup VIN'}
+          </button>
+        </div>
+        <p className="text-xs text-brand-gray dark:text-brand-white/70 mt-2">
+          Automatically fill vehicle details and fetch photos from Auto.dev
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="make" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
             Make <span className="text-red-500">*</span>
           </label>
-          <input
+          <MakeAutocomplete
             id="make"
-            type="text"
             name="make"
             value={formData.make}
-            onChange={handleInputChange}
+            onChange={(value) => setFormData((prev) => ({ ...prev, make: value }))}
             required
             className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white"
+            placeholder="e.g., Toyota"
           />
         </div>
 
@@ -194,14 +237,16 @@ export default function VehicleEditClient({ vehicleId, initialData }: VehicleEdi
           <label htmlFor="model" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
             Model <span className="text-red-500">*</span>
           </label>
-          <input
+          <ModelAutocomplete
             id="model"
-            type="text"
             name="model"
             value={formData.model}
-            onChange={handleInputChange}
+            onChange={(value) => setFormData((prev) => ({ ...prev, model: value }))}
+            make={formData.make}
+            year={formData.year}
             required
-            className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white"
+            className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white disabled:opacity-50 disabled:cursor-not-allowed"
+            placeholder="e.g., Camry"
           />
         </div>
 

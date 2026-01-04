@@ -6,17 +6,17 @@ export default function Footer() {
 
   return (
     <footer className="bg-brand-navy dark:bg-brand-navy-dark text-brand-white border-t border-brand-navy/20 dark:border-brand-navy/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-8 xs:py-10 sm:py-12 lg:py-16">
+        <div className="grid grid-cols-1 fold:grid-cols-2 md:grid-cols-4 gap-6 xs:gap-8 lg:gap-12">
           {/* Brand Section */}
-          <div className="col-span-1 md:col-span-2">
+          <div className="col-span-1 fold:col-span-2 md:col-span-2">
             <Link href="/" className="mb-4 inline-block">
               <Image
                 src="/media/images/2.svg"
                 alt="Carsera Logo"
                 width={400}
                 height={120}
-                className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto"
+                className="h-16 xs:h-20 sm:h-24 md:h-28 lg:h-32 w-auto"
               />
             </Link>
             <p className="text-brand-white/70 mb-4 max-w-md">
@@ -55,8 +55,8 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-base xs:text-lg font-semibold mb-3 xs:mb-4">Quick Links</h3>
+            <ul className="space-y-1.5 xs:space-y-2">
               <li>
                 <Link href="/listings" className="text-brand-white/70 hover:text-brand-blue-light transition-colors">
                   Browse Vehicles
@@ -82,8 +82,8 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Support</h3>
-            <ul className="space-y-2">
+            <h3 className="text-base xs:text-lg font-semibold mb-3 xs:mb-4">Support</h3>
+            <ul className="space-y-1.5 xs:space-y-2">
               <li>
                 <Link href="/about" className="text-brand-white/70 hover:text-brand-blue-light transition-colors">
                   About Us

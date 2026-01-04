@@ -39,7 +39,7 @@ export default async function DealerVehiclesPage() {
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 xs:py-8 sm:py-10 lg:py-12">
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
@@ -75,7 +75,7 @@ export default async function DealerVehiclesPage() {
                 <h2 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-4">
                   Active Vehicles ({activeVehicles.length})
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 fold:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 xs:gap-4 sm:gap-6 lg:gap-8">
                   {activeVehicles.map((vehicle: any) => {
                     const hasPhotos = vehicle.vehicle_photos && vehicle.vehicle_photos.length > 0
                     const imageUrl = hasPhotos
@@ -133,7 +133,7 @@ export default async function DealerVehiclesPage() {
                 <h2 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-4">
                   Inactive Vehicles ({inactiveVehicles.length})
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 fold:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 xs:gap-4 sm:gap-6 lg:gap-8">
                   {inactiveVehicles.map((vehicle: any) => {
                     const hasPhotos = vehicle.vehicle_photos && vehicle.vehicle_photos.length > 0
                     const imageUrl = hasPhotos

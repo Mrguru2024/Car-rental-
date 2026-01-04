@@ -16,6 +16,7 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
   const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
+    vin: '',
     make: '',
     model: '',
     year: new Date().getFullYear(),
@@ -27,6 +28,7 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
   })
   const [photos, setPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
+  const [vinLookupLoading, setVinLookupLoading] = useState(false)
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -39,18 +41,65 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
     }
   }
 
+  const handleVINLookup = async () => {
+    if (!formData.vin || formData.vin.length !== 17) {
+      showToast('Please enter a valid 17-character VIN', 'error')
+      return
+    }
+
+    setVinLookupLoading(true)
+    try {
+      const response = await fetch(`/api/vehicles/vin-lookup?vin=${encodeURIComponent(formData.vin)}`)
+      const contentType = response.headers.get('content-type')
+      
+      if (!response.ok) {
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to lookup VIN')
+        } else {
+          throw new Error(`Failed to lookup VIN: ${response.statusText}`)
+        }
+      }
+
+      const data = await response.json()
+      
+      if (data.success && data.data) {
+        // Auto-fill form fields
+        setFormData((prev) => ({
+          ...prev,
+          make: data.data.make || prev.make,
+          model: data.data.model || prev.model,
+          year: data.data.year || prev.year,
+        }))
+
+        // Add Auto.dev photos to previews
+        if (data.photos && data.photos.length > 0) {
+          setPhotoPreviews(data.photos.slice(0, 10)) // Limit to 10 photos
+          showToast(`Found vehicle data and ${data.photos.length} photos!`, 'success')
+        } else {
+          showToast('Vehicle data found, but no photos available', 'success')
+        }
+      }
+    } catch (error: any) {
+      showToast(error.message || 'Failed to lookup VIN', 'error')
+    } finally {
+      setVinLookupLoading(false)
+    }
+  }
+
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    setPhotos(files)
+    setPhotos((prev) => [...prev, ...files])
 
-    // Create previews
+    // Create previews for new files only (preserve existing Auto.dev URLs)
     const newPreviews: string[] = []
     files.forEach((file) => {
       const reader = new FileReader()
       reader.onloadend = () => {
         newPreviews.push(reader.result as string)
         if (newPreviews.length === files.length) {
-          setPhotoPreviews(newPreviews)
+          // Append new file previews to existing previews (which may include Auto.dev URLs)
+          setPhotoPreviews((prev) => [...prev, ...newPreviews])
         }
       }
       reader.readAsDataURL(file)
@@ -100,6 +149,7 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
         .from('vehicles')
         .insert({
           dealer_id: profileId,
+          vin: formData.vin || null,
           make: formData.make,
           model: formData.model,
           year: formData.year,
@@ -154,17 +204,46 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* VIN Lookup Section */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-3">
+          Quick Fill with VIN (Optional)
+        </h3>
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <input
+              type="text"
+              value={formData.vin}
+              onChange={(e) => setFormData((prev) => ({ ...prev, vin: e.target.value.toUpperCase() }))}
+              placeholder="Enter 17-character VIN (e.g., WP0AF2A99KS165242)"
+              maxLength={17}
+              className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white uppercase"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleVINLookup}
+            disabled={vinLookupLoading || !formData.vin || formData.vin.length !== 17}
+            className="px-6 py-2 bg-brand-blue text-white rounded-lg hover:bg-brand-blue/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            {vinLookupLoading ? 'Looking up...' : 'Lookup VIN'}
+          </button>
+        </div>
+        <p className="text-xs text-brand-gray dark:text-brand-white/70 mt-2">
+          Automatically fill vehicle details and fetch photos from Auto.dev
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="make" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
             Make <span className="text-red-500">*</span>
           </label>
-          <input
+          <MakeAutocomplete
             id="make"
-            type="text"
             name="make"
             value={formData.make}
-            onChange={handleInputChange}
+            onChange={(value) => setFormData((prev) => ({ ...prev, make: value }))}
             required
             className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white"
             placeholder="e.g., Toyota"
@@ -175,14 +254,15 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
           <label htmlFor="model" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
             Model <span className="text-red-500">*</span>
           </label>
-          <input
+          <ModelAutocomplete
             id="model"
-            type="text"
             name="model"
             value={formData.model}
-            onChange={handleInputChange}
+            onChange={(value) => setFormData((prev) => ({ ...prev, model: value }))}
+            make={formData.make}
+            year={formData.year}
             required
-            className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white"
+            className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="e.g., Camry"
           />
         </div>

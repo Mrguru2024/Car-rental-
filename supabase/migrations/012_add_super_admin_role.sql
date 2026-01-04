@@ -23,7 +23,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION add_admin_user(
   p_user_id UUID,
-  p_role TEXT,
+  p_role TEXT DEFAULT NULL,
   p_full_name TEXT DEFAULT NULL,
   p_email TEXT DEFAULT NULL
 )
@@ -35,9 +35,15 @@ AS $$
 DECLARE
   v_profile_id UUID;
   v_allowed_roles TEXT[] := ARRAY['admin', 'prime_admin', 'super_admin'];
+  v_final_role TEXT;
 BEGIN
+  -- Default to 'admin' role if not specified (for admin portal registrations)
+  -- Users registered via admin portal will get 'admin' role by default
+  -- Only super_admin can assign higher roles (prime_admin, super_admin)
+  v_final_role := COALESCE(p_role, 'admin');
+  
   -- Validate role
-  IF p_role != ALL(v_allowed_roles) THEN
+  IF v_final_role != ALL(v_allowed_roles) THEN
     RAISE EXCEPTION 'Invalid role. Allowed roles: admin, prime_admin, super_admin';
   END IF;
 
@@ -51,14 +57,14 @@ BEGIN
     -- Update existing profile
     UPDATE profiles
     SET 
-      role = p_role,
+      role = v_final_role,
       full_name = COALESCE(p_full_name, full_name),
       verification_status = 'approved', -- Admin users are pre-approved
       updated_at = NOW()
     WHERE user_id = p_user_id
     RETURNING id INTO v_profile_id;
   ELSE
-    -- Create new profile
+    -- Create new profile with default 'admin' role if not specified
     INSERT INTO profiles (
       user_id,
       role,
@@ -69,7 +75,7 @@ BEGIN
     )
     VALUES (
       p_user_id,
-      p_role,
+      v_final_role,
       p_full_name,
       'approved', -- Admin users are pre-approved
       NOW(),
@@ -90,7 +96,7 @@ REVOKE EXECUTE ON FUNCTION add_admin_user(UUID, TEXT, TEXT, TEXT) FROM authentic
 REVOKE EXECUTE ON FUNCTION add_admin_user(UUID, TEXT, TEXT, TEXT) FROM anon;
 
 -- Add comment
-COMMENT ON FUNCTION add_admin_user IS 'Securely add or update admin users. Only callable with service role key. Allowed roles: admin, prime_admin, super_admin';
+COMMENT ON FUNCTION add_admin_user IS 'Securely add or update admin users. Only callable with service role key. Defaults to admin role if not specified (for admin portal registrations). Allowed roles: admin, prime_admin, super_admin. Only super_admin should assign prime_admin or super_admin roles.';
 
 -- Create a helper function to list admin users (for verification, also secured)
 -- Drop all existing versions of the function (handle overloaded functions)

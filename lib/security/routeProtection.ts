@@ -141,12 +141,12 @@ export async function canAccessBooking(bookingId: string, userId: string): Promi
     return true
   }
 
-  // Check if user is admin or prime_admin
+  // Check if user is any admin role
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('user_id', userId)
     .single()
 
-  return profile?.role === 'admin' || profile?.role === 'prime_admin'
+  return profile?.role === 'admin' || profile?.role === 'prime_admin' || profile?.role === 'super_admin'
 }

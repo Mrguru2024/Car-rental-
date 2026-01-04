@@ -20,7 +20,7 @@ export default async function AdminVerificationsPage() {
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (!profile || profile.role !== 'admin') {
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'prime_admin' && profile.role !== 'super_admin')) {
     redirect('/')
   }
 

@@ -110,6 +110,10 @@ export async function updateSession(request: NextRequest) {
   // API routes that don't require authentication (webhooks, public endpoints)
   const publicApiPaths = [
     '/api/stripe/webhook', // Stripe webhook (verified by signature)
+    '/api/vehicle/recalls', // Vehicle recall data (public information)
+    '/api/vehicles/makes', // Vehicle makes (public information)
+    '/api/vehicles/models', // Vehicle models (public information)
+    '/api/vehicles/vin-lookup', // VIN lookup (public information)
   ]
 
   const isPublicApiPath = publicApiPaths.some(path => 
@@ -158,7 +162,7 @@ export async function updateSession(request: NextRequest) {
   )
 
   // Prime Admin-only paths (prime_admin and super_admin can access)
-  const primeAdminPaths = ['/admin/document-audit']
+  const primeAdminPaths = ['/admin/document-audit', '/admin/permissions']
   const isPrimeAdminPath = primeAdminPaths.some(path => 
     request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')
   )

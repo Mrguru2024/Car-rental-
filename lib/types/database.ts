@@ -110,6 +110,8 @@ export interface Database {
           business_license_number: string | null
           business_address: string | null
           tax_id: string | null
+          average_rating: number | null
+          total_reviews: number
           created_at: string
           updated_at: string
         }
@@ -131,6 +133,8 @@ export interface Database {
           business_license_number?: string | null
           business_address?: string | null
           tax_id?: string | null
+          average_rating?: number | null
+          total_reviews?: number
           created_at?: string
           updated_at?: string
         }
@@ -152,6 +156,8 @@ export interface Database {
           business_license_number?: string | null
           business_address?: string | null
           tax_id?: string | null
+          average_rating?: number | null
+          total_reviews?: number
           created_at?: string
           updated_at?: string
         }
@@ -160,6 +166,7 @@ export interface Database {
         Row: {
           id: string
           dealer_id: string
+          vin: string | null
           make: string
           model: string
           year: number
@@ -168,12 +175,15 @@ export interface Database {
           description: string | null
           mileage_limit: number | null
           status: 'active' | 'inactive'
+          average_rating: number | null
+          total_reviews: number
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           dealer_id: string
+          vin?: string | null
           make: string
           model: string
           year: number
@@ -188,6 +198,7 @@ export interface Database {
         Update: {
           id?: string
           dealer_id?: string
+          vin?: string | null
           make?: string
           model?: string
           year?: number
@@ -196,6 +207,8 @@ export interface Database {
           description?: string | null
           mileage_limit?: number | null
           status?: 'active' | 'inactive'
+          average_rating?: number | null
+          total_reviews?: number
           created_at?: string
           updated_at?: string
         }
@@ -208,7 +221,7 @@ export interface Database {
           start_date: string
           end_date: string
           total_price: number
-          status: 'draft' | 'pending_payment' | 'confirmed' | 'canceled'
+          status: 'draft' | 'pending_payment' | 'confirmed' | 'completed' | 'canceled'
           stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
           plan_fee_cents: number
@@ -218,6 +231,13 @@ export interface Database {
           stripe_transfer_id: string | null
           payout_status: 'pending' | 'transferred' | 'paid_out' | 'failed' | null
           payout_scheduled_date: string | null
+          canceled_at: string | null
+          canceled_by: string | null
+          cancellation_reason: string | null
+          refund_amount_cents: number | null
+          refund_status: 'pending' | 'processed' | 'failed' | 'none' | null
+          refund_processed_at: string | null
+          completed_at: string | null
           created_at: string
           updated_at: string
         }
@@ -238,6 +258,12 @@ export interface Database {
           stripe_transfer_id?: string | null
           payout_status?: 'pending' | 'transferred' | 'paid_out' | 'failed' | null
           payout_scheduled_date?: string | null
+          canceled_at?: string | null
+          canceled_by?: string | null
+          cancellation_reason?: string | null
+          refund_amount_cents?: number | null
+          refund_status?: 'pending' | 'processed' | 'failed' | 'none' | null
+          refund_processed_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -258,6 +284,196 @@ export interface Database {
           stripe_transfer_id?: string | null
           payout_status?: 'pending' | 'transferred' | 'paid_out' | 'failed' | null
           payout_scheduled_date?: string | null
+          canceled_at?: string | null
+          canceled_by?: string | null
+          cancellation_reason?: string | null
+          refund_amount_cents?: number | null
+          refund_status?: 'pending' | 'processed' | 'failed' | 'none' | null
+          refund_processed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      reviews: {
+        Row: {
+          id: string
+          booking_id: string
+          renter_id: string
+          vehicle_id: string
+          dealer_id: string
+          vehicle_rating: number
+          dealer_rating: number
+          vehicle_review: string | null
+          dealer_review: string | null
+          status: 'pending' | 'published' | 'hidden'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id: string
+          renter_id: string
+          vehicle_id: string
+          dealer_id: string
+          vehicle_rating: number
+          dealer_rating: number
+          vehicle_review?: string | null
+          dealer_review?: string | null
+          status?: 'pending' | 'published' | 'hidden'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string
+          renter_id?: string
+          vehicle_id?: string
+          dealer_id?: string
+          vehicle_rating?: number
+          dealer_rating?: number
+          vehicle_review?: string | null
+          dealer_review?: string | null
+          status?: 'pending' | 'published' | 'hidden'
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      saved_vehicles: {
+        Row: {
+          id: string
+          renter_id: string
+          vehicle_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          renter_id: string
+          vehicle_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          renter_id?: string
+          vehicle_id?: string
+          created_at?: string
+        }
+      }
+      vehicle_recall_cache: {
+        Row: {
+          id: string
+          vehicle_id: string
+          vin: string | null
+          model_year: number
+          make: string
+          model: string
+          recall_count: number
+          severity_level: 'none' | 'info' | 'caution' | 'urgent'
+          badge_label: string
+          badge_color: 'green' | 'yellow' | 'red' | 'gray'
+          recall_payload: Record<string, any>
+          fetched_at: string
+          expires_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          vehicle_id: string
+          vin?: string | null
+          model_year: number
+          make: string
+          model: string
+          recall_count?: number
+          severity_level?: 'none' | 'info' | 'caution' | 'urgent'
+          badge_label?: string
+          badge_color?: 'green' | 'yellow' | 'red' | 'gray'
+          recall_payload?: Record<string, any>
+          fetched_at?: string
+          expires_at: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          vehicle_id?: string
+          vin?: string | null
+          model_year?: number
+          make?: string
+          model?: string
+          recall_count?: number
+          severity_level?: 'none' | 'info' | 'caution' | 'urgent'
+          badge_label?: string
+          badge_color?: 'green' | 'yellow' | 'red' | 'gray'
+          recall_payload?: Record<string, any>
+          fetched_at?: string
+          expires_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      vehicle_standing: {
+        Row: {
+          id: string
+          vehicle_id: string
+          standing_grade: 'A' | 'B' | 'C' | 'D' | 'F'
+          standing_score: number
+          reasons: string[]
+          computed_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          vehicle_id: string
+          standing_grade?: 'A' | 'B' | 'C' | 'D' | 'F'
+          standing_score?: number
+          reasons?: string[]
+          computed_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          vehicle_id?: string
+          standing_grade?: 'A' | 'B' | 'C' | 'D' | 'F'
+          standing_score?: number
+          reasons?: string[]
+          computed_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      price_alerts: {
+        Row: {
+          id: string
+          renter_id: string
+          vehicle_id: string
+          target_price_cents: number
+          current_price_cents: number
+          notified: boolean
+          notified_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          renter_id: string
+          vehicle_id: string
+          target_price_cents: number
+          current_price_cents: number
+          notified?: boolean
+          notified_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          renter_id?: string
+          vehicle_id?: string
+          target_price_cents?: number
+          current_price_cents?: number
+          notified?: boolean
+          notified_at?: string | null
           created_at?: string
           updated_at?: string
         }

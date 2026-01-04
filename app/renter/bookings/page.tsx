@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import Header from '@/components/Layout/Header'
 import Link from 'next/link'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
+import CancelButton from '@/components/Booking/CancelButton'
+import CompleteButton from './CompleteButton'
 
 export default async function RenterBookingsPage() {
   const supabase = await createClient()
@@ -43,7 +45,7 @@ export default async function RenterBookingsPage() {
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 xs:py-8 sm:py-10 lg:py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-brand-navy dark:text-brand-white mb-2">
             My Bookings
@@ -128,19 +130,59 @@ export default async function RenterBookingsPage() {
                         </div>
                       </div>
 
-                      {booking.status === 'draft' && (
-                        <Link
-                          href={`/bookings/${booking.id}/checkout`}
-                          className="inline-block px-4 py-2 bg-brand-blue dark:bg-brand-blue-light text-white dark:text-white rounded-lg hover:bg-brand-blue-dark dark:hover:bg-brand-blue transition-colors text-sm font-medium"
-                        >
-                          Complete Payment
-                        </Link>
-                      )}
-                      {booking.status === 'confirmed' && (
-                        <div className="text-sm text-brand-green dark:text-brand-green-light">
-                          ✓ Booking confirmed
-                        </div>
-                      )}
+                      <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:items-center">
+                        {booking.status === 'draft' && (
+                          <Link
+                            href={`/bookings/${booking.id}/checkout`}
+                            className="inline-block px-4 py-2 bg-brand-blue dark:bg-brand-blue-light text-white dark:text-white rounded-lg hover:bg-brand-blue-dark dark:hover:bg-brand-blue transition-colors text-sm font-medium"
+                          >
+                            Complete Payment
+                          </Link>
+                        )}
+                        {booking.status === 'confirmed' && (
+                          <>
+                            <div className="text-sm text-brand-green dark:text-brand-green-light flex items-center order-1 sm:order-none">
+                              ✓ Booking confirmed
+                            </div>
+                            <div className="flex flex-wrap gap-2 order-2 sm:order-none">
+                              <CompleteButton
+                                bookingId={booking.id}
+                                bookingStatus={booking.status}
+                                endDate={booking.end_date}
+                              />
+                              <CancelButton
+                                bookingId={booking.id}
+                                bookingStatus={booking.status}
+                                startDate={booking.start_date}
+                              />
+                            </div>
+                          </>
+                        )}
+                        {booking.status === 'pending_payment' && (
+                          <CancelButton
+                            bookingId={booking.id}
+                            bookingStatus={booking.status}
+                            startDate={booking.start_date}
+                          />
+                        )}
+                        {booking.status === 'completed' && (
+                          <div className="text-sm text-brand-green dark:text-brand-green-light flex items-center">
+                            ✓ Trip completed
+                          </div>
+                        )}
+                        {booking.status === 'canceled' && booking.refund_status && (
+                          <div className="text-sm">
+                            <span className="text-brand-gray dark:text-brand-white/70">
+                              Refund status: {booking.refund_status}
+                            </span>
+                            {booking.refund_amount_cents && (
+                              <span className="ml-2 text-brand-green dark:text-brand-green-light">
+                                Refund: ${(booking.refund_amount_cents / 100).toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -51,8 +51,8 @@ export async function canAccessResource(
         if (resourceId === userId) {
           return { allowed: true }
         }
-        // Admins can access any profile
-        if (profile.role === 'admin') {
+        // Admin roles can access any profile
+        if (profile.role === 'admin' || profile.role === 'prime_admin' || profile.role === 'super_admin') {
           return { allowed: true }
         }
         return { allowed: false, reason: 'Access denied: can only view own profile' }
@@ -140,8 +140,8 @@ async function checkBookingAccess(
     return { allowed: true }
   }
 
-  // Admins can access any booking
-  if (userRole === 'admin') {
+  // Admin roles can access any booking
+  if (userRole === 'admin' || userRole === 'prime_admin' || userRole === 'super_admin') {
     return { allowed: true }
   }
 
@@ -159,9 +159,9 @@ async function checkDocumentAccess(
 ): Promise<AccessCheck> {
   // Documents are typically linked to profiles
   // Users can only access their own documents
-  // Admins can access all documents
+  // Admin roles can access all documents
   
-  if (userRole === 'admin') {
+  if (userRole === 'admin' || userRole === 'prime_admin' || userRole === 'super_admin') {
     return { allowed: true }
   }
 

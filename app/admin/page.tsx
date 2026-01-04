@@ -96,7 +96,7 @@ export default async function AdminDashboardPage() {
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 xs:py-8 sm:py-10 lg:py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-brand-navy dark:text-brand-white mb-2">
             Admin Dashboard
@@ -130,7 +130,7 @@ export default async function AdminDashboardPage() {
         )}
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 fold:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 xs:gap-4 sm:gap-6 mb-6 xs:mb-8">
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
             <h3 className="text-sm font-medium text-brand-gray dark:text-brand-white/70 mb-1">
               Total Users
@@ -178,96 +178,157 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Link
-            href="/admin/byoi"
-            className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
-                BYOI Approvals
-              </h3>
-              {pendingByoiCount && pendingByoiCount > 0 && (
-                <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-xs font-semibold rounded-full">
-                  {pendingByoiCount}
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-brand-gray dark:text-brand-white/70">
-              Review insurance documents
-            </p>
-          </Link>
-
-          <Link
-            href="/admin/verifications"
-            className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
-                Verifications
-              </h3>
-              {pendingVerificationsCount && pendingVerificationsCount > 0 && (
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs font-semibold rounded-full">
-                  {pendingVerificationsCount}
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-brand-gray dark:text-brand-white/70">
-              Review user verifications
-            </p>
-          </Link>
-
-          <Link
-            href="/admin/security"
-            className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
-                Security Events
-              </h3>
-              {securityEvents && securityEvents.length > 0 && (
-                <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs font-semibold rounded-full">
-                  {securityEvents.length}
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-brand-gray dark:text-brand-white/70">
-              Monitor security activity
-            </p>
-          </Link>
-
-          <Link
-            href="/admin/users"
-            className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
-          >
-            <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-2">
-              User Management
-            </h3>
-            <p className="text-sm text-brand-gray dark:text-brand-white/70">
-              Manage users and profiles
-            </p>
-          </Link>
-
-          {profile?.role === 'prime_admin' && (
+        {/* Quick Actions - Different for Regular Admin vs Prime/Super Admin */}
+        {profile?.role === 'admin' ? (
+          // Regular Admin - Limited Tools (Account Approvals & Tech Support)
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <Link
-              href="/admin/document-audit"
+              href="/admin/byoi"
+              className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                  BYOI Approvals
+                </h3>
+                {pendingByoiCount && pendingByoiCount > 0 && (
+                  <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-xs font-semibold rounded-full">
+                    {pendingByoiCount}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                Review insurance documents
+              </p>
+            </Link>
+
+            <Link
+              href="/admin/verifications"
+              className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                  Account Verifications
+                </h3>
+                {pendingVerificationsCount && pendingVerificationsCount > 0 && (
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs font-semibold rounded-full">
+                    {pendingVerificationsCount}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                Review user verifications
+              </p>
+            </Link>
+
+            <Link
+              href="/admin/support"
+              className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+            >
+              <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-2">
+                Tech Support
+              </h3>
+              <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                Customer service and support tools
+              </p>
+            </Link>
+          </div>
+        ) : (
+          // Prime Admin & Super Admin - Full Access
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Link
+              href="/admin/byoi"
+              className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                  BYOI Approvals
+                </h3>
+                {pendingByoiCount && pendingByoiCount > 0 && (
+                  <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-xs font-semibold rounded-full">
+                    {pendingByoiCount}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                Review insurance documents
+              </p>
+            </Link>
+
+            <Link
+              href="/admin/verifications"
+              className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                  Verifications
+                </h3>
+                {pendingVerificationsCount && pendingVerificationsCount > 0 && (
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs font-semibold rounded-full">
+                    {pendingVerificationsCount}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                Review user verifications
+              </p>
+            </Link>
+
+            <Link
+              href="/admin/security"
+              className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                  Security Events
+                </h3>
+                {securityEvents && securityEvents.length > 0 && (
+                  <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs font-semibold rounded-full">
+                    {securityEvents.length}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                Monitor security activity
+              </p>
+            </Link>
+
+            <Link
+              href="/admin/permissions"
               className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border-2 border-purple-200 dark:border-purple-800/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
-                  Document Audit
+                  Permissions
                 </h3>
                 <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-xs font-semibold rounded-full">
-                  Prime Admin
+                  {profile?.role === 'super_admin' ? 'Super Admin' : 'Prime Admin'}
                 </span>
               </div>
               <p className="text-sm text-brand-gray dark:text-brand-white/70">
-                Review flagged documents from automated bot checks
+                Manage user roles and permissions
               </p>
             </Link>
-          )}
-        </div>
+
+            {(profile?.role === 'prime_admin' || profile?.role === 'super_admin') && (
+              <Link
+                href="/admin/document-audit"
+                className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border-2 border-purple-200 dark:border-purple-800/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                    Document Audit
+                  </h3>
+                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-xs font-semibold rounded-full">
+                    Prime Admin
+                  </span>
+                </div>
+                <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                  Review flagged documents from automated bot checks
+                </p>
+              </Link>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Bookings */}

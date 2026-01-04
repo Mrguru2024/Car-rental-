@@ -13,17 +13,39 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
-    // Additional security: Check for API key or other auth mechanism
-    const apiKey = request.headers.get('x-api-key')
-    const expectedApiKey = process.env.ADMIN_API_KEY // Set this in .env.local
+    // Get the authenticated user making the request
+    const supabase = await createClient()
+    const {
+      data: { user: requester },
+    } = await supabase.auth.getUser()
 
-    // Optional: Require API key for extra security
-    if (expectedApiKey && apiKey !== expectedApiKey) {
+    if (!requester) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get requester's profile to check role
+    const { data: requesterProfile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('user_id', requester.id)
+      .single()
+
+    if (!requesterProfile) {
+      return NextResponse.json({ error: 'Requester profile not found' }, { status: 403 })
+    }
+
+    // Verify requester is an admin role
+    if (
+      requesterProfile.role !== 'admin' &&
+      requesterProfile.role !== 'prime_admin' &&
+      requesterProfile.role !== 'super_admin'
+    ) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
     const body = await request.json()
@@ -34,21 +56,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'user_id is required' }, { status: 400 })
     }
 
+    // Default to 'admin' role if not specified (for admin portal registrations)
+    // Users registered via admin portal default to 'admin' role
+    const defaultRole = 'admin'
+    const finalRole = role || defaultRole
+
     const allowedRoles = ['admin', 'prime_admin', 'super_admin']
-    if (!role || !allowedRoles.includes(role)) {
+    if (!allowedRoles.includes(finalRole)) {
       return NextResponse.json(
         { error: `Invalid role. Allowed: ${allowedRoles.join(', ')}` },
         { status: 400 }
       )
     }
 
-    // Use service role client
-    const supabase = createAdminClient()
+    // Only super_admin can assign prime_admin or super_admin roles
+    // Regular admins can only create users with 'admin' role (or default)
+    if ((finalRole === 'prime_admin' || finalRole === 'super_admin') && requesterProfile.role !== 'super_admin') {
+      return NextResponse.json(
+        { error: 'Forbidden - Only super_admin can assign prime_admin or super_admin roles' },
+        { status: 403 }
+      )
+    }
+
+    // Use service role client for database operations
+    const adminSupabase = createAdminClient()
 
     // Call the secure database function
-    const { data, error } = await supabase.rpc('add_admin_user', {
+    // Pass finalRole (or null to use default 'admin' in database function)
+    // If role is not provided, pass null to let database function default to 'admin'
+    const { data, error } = await adminSupabase.rpc('add_admin_user', {
       p_user_id: user_id,
-      p_role: role,
+      p_role: role ? finalRole : null, // Pass null if role not provided to use default 'admin'
       p_full_name: full_name || null,
     })
 
@@ -63,7 +101,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       profile_id: data,
-      message: `User added as ${role} successfully`,
+      message: `User added as ${finalRole} successfully`,
     })
   } catch (error: any) {
     console.error('Add admin user error:', error)

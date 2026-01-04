@@ -28,9 +28,9 @@ export async function POST(request: Request) {
       .eq('user_id', user.id)
       .maybeSingle()
 
-    // Only Prime Admins can trigger bot checks
-    if (profile?.role !== 'prime_admin') {
-      return NextResponse.json({ error: 'Forbidden - Prime Admin access required' }, { status: 403 })
+    // Only Prime Admins and Super Admins can trigger bot checks
+    if (profile?.role !== 'prime_admin' && profile?.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Forbidden - Prime Admin or Super Admin access required' }, { status: 403 })
     }
 
     const body = await request.json()

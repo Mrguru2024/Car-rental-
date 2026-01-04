@@ -8,6 +8,17 @@ const config: Config = {
   ],
   darkMode: "class",
   theme: {
+    screens: {
+      'xs': '375px',      // Large phones (iPhone X, etc.)
+      'fold': '512px',    // Samsung Z Fold unfolded, small tablets
+      'sm': '640px',      // Small tablets
+      'md': '768px',      // Tablets
+      'lg': '1024px',     // Small laptops
+      'xl': '1280px',     // Desktops
+      '2xl': '1536px',    // Large desktops
+      '3xl': '1920px',    // Full HD displays
+      '4xl': '2560px',    // Ultra-wide/QHD displays
+    },
     extend: {
       colors: {
         background: "var(--background)",

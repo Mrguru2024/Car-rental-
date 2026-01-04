@@ -5,7 +5,7 @@
 
 export interface VehicleImageResult {
   url: string
-  source: 'host_upload' | 'vinaudit' | 'fallback'
+  source: 'host_upload' | 'autodev' | 'fallback'
 }
 
 /**

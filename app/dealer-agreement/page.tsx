@@ -329,7 +329,7 @@ export default async function DealerAgreementPage() {
               12. Limitation of Liability
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, DRIVANA SHALL NOT BE LIABLE FOR:
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, CARSERA SHALL NOT BE LIABLE FOR:
             </p>
             <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
               <li>Vehicle damage, loss, or theft</li>

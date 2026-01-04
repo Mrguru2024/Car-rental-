@@ -169,12 +169,12 @@ export default function MileageSlider({ minMileage, maxMileage }: MileageSliderP
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: sliderStyles }} />
-      <div className="sm:col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 w-full min-w-0">
-        <label htmlFor="mileage-range" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
+      <div className="fold:col-span-2 sm:col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 w-full min-w-0">
+        <label htmlFor="mileage-range" className="block text-xs xs:text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
           Mileage Limit Range
         </label>
       <div className="space-y-2 w-full">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full">
+        <div className="flex flex-col fold:flex-row items-stretch fold:items-center gap-3 w-full">
           <div className="flex-1 min-w-0 w-full">
             <label htmlFor="min-mileage-slider" className="sr-only">Minimum mileage</label>
             <input

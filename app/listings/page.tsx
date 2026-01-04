@@ -108,6 +108,26 @@ export default async function ListingsPage({
           };
         });
 
+  // Fetch images for placeholder vehicles using fallback system
+  if (displayVehicles && (!vehicles || vehicles.length === 0)) {
+    const { getVehicleDisplayImage } = await import('@/lib/images/getVehicleDisplayImage');
+    const vehiclesWithImages = await Promise.all(
+      displayVehicles.map(async (vehicle: any) => {
+        const imageResult = await getVehicleDisplayImage(
+          vehicle.id,
+          vehicle.make,
+          vehicle.model,
+          vehicle.year
+        );
+        return {
+          ...vehicle,
+          _displayImage: imageResult.url, // Store image URL for client component
+        };
+      })
+    );
+    displayVehicles = vehiclesWithImages;
+  }
+
   // Apply location filter to seed/placeholder vehicles (client-side)
   if (location && displayVehicles.length > 0) {
     const locationLower = location.toLowerCase().trim();
@@ -189,25 +209,25 @@ export default async function ListingsPage({
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4 xs:py-6 sm:py-8 lg:py-10">
         {/* Page Header */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-navy dark:text-brand-white mb-2">
+        <div className="mb-4 xs:mb-6 sm:mb-8">
+          <h1 className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-brand-navy dark:text-brand-white mb-2">
             Browse Vehicles
           </h1>
-          <p className="text-sm sm:text-base text-brand-gray dark:text-brand-white/70">
+          <p className="text-xs xs:text-sm sm:text-base lg:text-lg text-brand-gray dark:text-brand-white/70">
             Find your perfect rental vehicle in Atlanta
           </p>
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white dark:bg-brand-navy-light rounded-lg shadow-md dark:shadow-brand-navy/30 p-4 sm:p-6 mb-6 sm:mb-8 border border-brand-white dark:border-brand-navy/50 w-full">
+        <div className="bg-white dark:bg-brand-navy-light rounded-lg shadow-md dark:shadow-brand-navy/30 p-3 xs:p-4 sm:p-6 mb-4 xs:mb-6 sm:mb-8 border border-brand-white dark:border-brand-navy/50 w-full">
           <form
             action="/listings"
             method="get"
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full max-w-full"
+            className="grid grid-cols-1 fold:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-3 xs:gap-4 w-full max-w-full"
           >
-            <div className="sm:col-span-2 md:col-span-2 lg:col-span-1 xl:col-span-1 w-full min-w-0">
+            <div className="fold:col-span-2 sm:col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-1 w-full min-w-0">
               <label
                 htmlFor="search-location"
                 className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-1.5"
@@ -302,7 +322,7 @@ export default async function ListingsPage({
 
         {/* Vehicle Grid */}
         {filteredVehicles && filteredVehicles.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 fold:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 xs:gap-4 sm:gap-6 lg:gap-8">
             {filteredVehicles.map((vehicle: any) => (
               <VehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}

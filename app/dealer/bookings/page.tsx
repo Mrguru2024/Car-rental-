@@ -59,7 +59,7 @@ export default async function DealerBookingsPage() {
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 xs:py-8 sm:py-10 lg:py-12">
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
@@ -120,7 +120,7 @@ export default async function DealerBookingsPage() {
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="grid grid-cols-2 fold:grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 xs:gap-4 mb-4">
                         <div>
                           <p className="text-xs text-brand-gray dark:text-brand-white/70 mb-1">
                             Pick-up Date

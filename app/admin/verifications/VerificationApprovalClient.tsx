@@ -29,14 +29,27 @@ export default function VerificationApprovalClient({
     try {
       const notes = adminNotes[profileId] || null
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          verification_status: status,
-        })
-        .eq('id', profileId)
+      // Use API endpoint for audit logging
+      const response = await fetch(`/api/admin/verifications/${profileId}/decision`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status,
+          notes,
+        }),
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json()
+          throw new Error(error.error || `Failed to ${status} verification`)
+        } else {
+          throw new Error(`Failed to ${status} verification: ${response.statusText}`)
+        }
+      }
 
       // Remove from list if approved, keep if rejected (so admin can re-approve)
       if (status === 'approved') {

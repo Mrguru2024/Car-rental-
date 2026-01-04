@@ -5,7 +5,14 @@
 
 import { createClient } from '@/lib/supabase/server'
 
-export type RateLimitAction = 'booking_attempt' | 'verification_submit' | 'listing_create'
+export type RateLimitAction =
+  | 'booking_attempt'
+  | 'verification_submit'
+  | 'listing_create'
+  | 'vin_lookup'
+  | 'api_makes'
+  | 'api_models'
+  | 'autodev_photos'
 
 interface RateLimitConfig {
   maxAttempts: number
@@ -23,6 +30,26 @@ const RATE_LIMIT_CONFIGS: Record<RateLimitAction, RateLimitConfig> = {
   },
   listing_create: {
     maxAttempts: 20,
+    windowMs: 60 * 60 * 1000, // 1 hour
+  },
+  vin_lookup: {
+    maxAttempts: 50, // 50 VIN lookups per hour per user/IP
+    windowMs: 60 * 60 * 1000, // 1 hour
+  },
+  api_makes: {
+    maxAttempts: 100, // Makes list can be cached, higher limit
+    windowMs: 60 * 60 * 1000, // 1 hour
+  },
+  api_models: {
+    maxAttempts: 200, // Models list can be cached, higher limit
+    windowMs: 60 * 60 * 1000, // 1 hour
+  },
+  autodev_photos: {
+    maxAttempts: 100, // Auto.dev photos - limit to prevent excessive API usage
+    windowMs: 60 * 60 * 1000, // 1 hour
+  },
+  recall_lookup: {
+    maxAttempts: 30, // Recall lookups - limit to prevent excessive NHTSA API calls
     windowMs: 60 * 60 * 1000, // 1 hour
   },
 }

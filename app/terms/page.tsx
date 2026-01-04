@@ -10,9 +10,7 @@ export const metadata: Metadata = {
 
 export default async function TermsOfServicePage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  await supabase.auth.getUser()
 
   return (
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
@@ -166,11 +164,25 @@ export default async function TermsOfServicePage() {
             <h2 className="text-2xl font-semibold text-brand-navy dark:text-brand-white mb-4">
               7. Cancellations and Refunds
             </h2>
+            <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
+              7.1 Cancellation Policy
+            </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Cancellation policies vary by vehicle and are set by the vehicle owner. Cancellation terms are displayed at the time of booking. Refunds, if applicable, will be processed according to the cancellation policy and may take 5-10 business days.
+              Cancellation policies vary by vehicle and are set by the vehicle owner. Cancellation terms are displayed at the time of booking. Our standard cancellation policy is as follows:
             </p>
+            <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
+              <li><strong>48+ hours before rental start:</strong> Full refund (including protection plan fees)</li>
+              <li><strong>24-48 hours before rental start:</strong> 50% refund of base rental price, full refund of protection plan fees</li>
+              <li><strong>Less than 24 hours before rental start:</strong> No refund of base rental price, protection plan fees refunded</li>
+            </ul>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              Carsera reserves the right to cancel bookings in cases of fraud, safety concerns, or violations of these Terms.
+              Refunds, if applicable, will be processed according to the cancellation policy and may take 5-10 business days to appear in your account.
+            </p>
+            <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
+              7.2 Platform Cancellations
+            </h3>
+            <p className="text-brand-gray dark:text-brand-white/70 mb-4">
+              Carsera reserves the right to cancel bookings in cases of fraud, safety concerns, violations of these Terms, or other circumstances that may compromise the integrity of the platform.
             </p>
           </section>
 
@@ -182,7 +194,7 @@ export default async function TermsOfServicePage() {
               <strong>Vehicle owners are required to maintain valid insurance coverage.</strong> Renters are responsible for their own insurance and may be required to provide proof of insurance.
             </p>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              <strong>DRIVANA IS NOT AN INSURANCE PROVIDER.</strong> We do not provide insurance coverage. Users are solely responsible for obtaining appropriate insurance coverage.
+              <strong>CARSERA IS NOT AN INSURANCE PROVIDER.</strong> We do not provide insurance coverage. Users are solely responsible for obtaining appropriate insurance coverage.
             </p>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
               To the maximum extent permitted by law, Carsera disclaims all liability for:
@@ -193,6 +205,12 @@ export default async function TermsOfServicePage() {
               <li>Accidents or incidents during rentals</li>
               <li>Insurance claims or coverage disputes</li>
             </ul>
+            <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
+              8.1 Protection Plans
+            </h3>
+            <p className="text-brand-gray dark:text-brand-white/70 mb-4">
+              Carsera may offer optional protection plans that provide coverage for certain damages. These plans are not insurance products and are subject to specific terms and limitations. Protection plans are optional and renters may choose to bring their own insurance instead.
+            </p>
           </section>
 
           <section className="mb-8">
@@ -200,11 +218,23 @@ export default async function TermsOfServicePage() {
               9. Disclaimers and Limitation of Liability
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. DRIVANA DISCLAIMS ALL WARRANTIES, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+              THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. CARSERA DISCLAIMS ALL WARRANTIES, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
             </p>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, DRIVANA SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFITS, DATA LOSS, OR BUSINESS INTERRUPTION, ARISING FROM YOUR USE OF THE SERVICE.
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, CARSERA SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFITS, DATA LOSS, OR BUSINESS INTERRUPTION, ARISING FROM YOUR USE OF THE SERVICE.
             </p>
+            <p className="text-brand-gray dark:text-brand-white/70 mb-4">
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, CARSERA SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING:
+            </p>
+            <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
+              <li>Lost profits</li>
+              <li>Data loss</li>
+              <li>Business interruption</li>
+              <li>Personal injury</li>
+              <li>Vehicle damage</li>
+              <li>Lost income</li>
+              <li>Emotional distress</li>
+            </ul>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
               Our total liability to you for all claims shall not exceed the amount you paid to us in the 12 months preceding the claim, or $100, whichever is greater.
             </p>
@@ -228,7 +258,31 @@ export default async function TermsOfServicePage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-brand-navy dark:text-brand-white mb-4">
-              11. Intellectual Property
+              11. Reviews and Ratings
+            </h2>
+            <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
+              11.1 Review Guidelines
+            </h3>
+            <p className="text-brand-gray dark:text-brand-white/70 mb-4">
+              Users may leave reviews and ratings for vehicles and dealers after completing a rental. Reviews must be:
+            </p>
+            <ul className="list-disc pl-6 text-brand-gray dark:text-brand-white/70 mb-4 space-y-2">
+              <li>Truthful and based on actual experience</li>
+              <li>Free from defamatory, libelous, or offensive content</li>
+              <li>Compliant with applicable laws</li>
+              <li>Not used to manipulate ratings or rankings</li>
+            </ul>
+            <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
+              11.2 Review Moderation
+            </h3>
+            <p className="text-brand-gray dark:text-brand-white/70 mb-4">
+              Carsera reserves the right to remove, edit, or hide reviews that violate these Terms or our community guidelines. We are not responsible for the content of user reviews.
+            </p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-brand-navy dark:text-brand-white mb-4">
+              12. Intellectual Property
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
               The Service and its content, features, and functionality are owned by Carsera and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, or create derivative works without our written permission.
@@ -237,7 +291,7 @@ export default async function TermsOfServicePage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-brand-navy dark:text-brand-white mb-4">
-              12. Termination
+              13. Termination
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
               We may terminate or suspend your account and access to the Service immediately, without prior notice, for any reason, including violation of these Terms. Upon termination, your right to use the Service will cease immediately.
@@ -249,16 +303,25 @@ export default async function TermsOfServicePage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-brand-navy dark:text-brand-white mb-4">
-              13. Dispute Resolution
+              14. Dispute Resolution
             </h2>
+            <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
+              14.1 Binding Arbitration
+            </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              <strong>Binding Arbitration:</strong> Any dispute arising from these Terms or the Service shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association, except where prohibited by law.
+              Any dispute arising from these Terms or the Service shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association, except where prohibited by law.
             </p>
+            <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
+              14.2 Class Action Waiver
+            </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              <strong>Class Action Waiver:</strong> You agree to resolve disputes individually and waive any right to participate in class actions or consolidated proceedings.
+              You agree to resolve disputes individually and waive any right to participate in class actions or consolidated proceedings.
             </p>
+            <h3 className="text-xl font-semibold text-brand-navy dark:text-brand-white mb-3 mt-6">
+              14.3 Governing Law
+            </h3>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
-              <strong>Governing Law:</strong> These Terms shall be governed by the laws of the State of Georgia, without regard to conflict of law principles.
+              These Terms shall be governed by the laws of the State of Georgia, United States, without regard to conflict of law principles.
             </p>
           </section>
 
@@ -273,7 +336,34 @@ export default async function TermsOfServicePage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-brand-navy dark:text-brand-white mb-4">
-              15. Contact Information
+              16. Severability
+            </h2>
+            <p className="text-brand-gray dark:text-brand-white/70 mb-4">
+              If any provision of these Terms is found to be unenforceable or invalid, that provision shall be limited or eliminated to the minimum extent necessary, and the remaining provisions shall remain in full force and effect.
+            </p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-brand-navy dark:text-brand-white mb-4">
+              17. Entire Agreement
+            </h2>
+            <p className="text-brand-gray dark:text-brand-white/70 mb-4">
+              These Terms, together with our Privacy Policy and any additional agreements you enter into with Carsera, constitute the entire agreement between you and Carsera regarding the Service.
+            </p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-brand-navy dark:text-brand-white mb-4">
+              18. Waiver
+            </h2>
+            <p className="text-brand-gray dark:text-brand-white/70 mb-4">
+              No waiver of any term of these Terms shall be deemed a further or continuing waiver of such term or any other term, and Carsera's failure to assert any right or provision under these Terms shall not constitute a waiver of such right or provision.
+            </p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-brand-navy dark:text-brand-white mb-4">
+              19. Contact Information
             </h2>
             <p className="text-brand-gray dark:text-brand-white/70 mb-4">
               If you have questions about these Terms, please contact us at:
@@ -283,6 +373,12 @@ export default async function TermsOfServicePage() {
               <p className="text-brand-gray dark:text-brand-white/70">Email: <a href="mailto:legal@carsera.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">legal@carsera.com</a></p>
               <p className="text-brand-gray dark:text-brand-white/70">Support: <a href="mailto:support@carsera.com" className="text-brand-blue dark:text-brand-blue-light hover:underline">support@carsera.com</a></p>
             </div>
+          </section>
+
+          <section className="mb-8 mt-12 pt-8 border-t border-brand-gray/20 dark:border-brand-navy/50">
+            <p className="text-sm text-brand-gray dark:text-brand-white/70 italic">
+              By using Carsera, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+            </p>
           </section>
         </div>
       </div>

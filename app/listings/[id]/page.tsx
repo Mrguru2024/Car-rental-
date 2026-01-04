@@ -4,6 +4,9 @@ import Header from '@/components/Layout/Header'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils/format'
 import BookingForm from '@/components/Booking/BookingForm'
+import SaveButton from '@/components/Vehicle/SaveButton'
+import RecallBadge from '@/components/Vehicle/RecallBadge'
+import VehicleStandingCard from '@/components/Vehicle/VehicleStandingCard'
 import { generateListingMetadata, generateListingJsonLd } from './metadata'
 import type { Metadata } from 'next'
 
@@ -128,30 +131,35 @@ export default async function VehicleDetailPage({
       />
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 xs:py-8 sm:py-10 lg:py-12">
         {/* Back Button */}
         <Link
           href="/listings"
-          className="inline-flex items-center text-brand-blue dark:text-brand-blue-light hover:underline mb-6"
+          className="inline-flex items-center text-brand-blue dark:text-brand-blue-light hover:underline mb-4 xs:mb-6 text-sm xs:text-base"
         >
           ← Back to Listings
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xs:gap-8 lg:gap-12">
           {/* Left Column - Images & Details */}
           <div>
             {/* Main Image */}
-            <div className="aspect-video w-full bg-brand-gray/10 dark:bg-brand-navy rounded-xl overflow-hidden mb-4">
+            <div className="aspect-video w-full bg-brand-gray/10 dark:bg-brand-navy rounded-xl overflow-hidden mb-4 relative">
               <img
                 src={imageUrl}
                 alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                 className="w-full h-full object-cover"
               />
+              {user && (
+                <div className="absolute top-4 right-4">
+                  <SaveButton vehicleId={vehicle.id} className="bg-white dark:bg-brand-navy-light shadow-lg" />
+                </div>
+              )}
             </div>
 
             {/* Additional Images */}
             {vehicle.vehicle_photos && vehicle.vehicle_photos.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 fold:grid-cols-3 sm:grid-cols-4 gap-2">
                 {vehicle.vehicle_photos.slice(1, 5).map((photo: any, idx: number) => (
                   <div key={idx} className="aspect-video bg-brand-gray/10 dark:bg-brand-navy rounded overflow-hidden">
                     <img
@@ -164,12 +172,22 @@ export default async function VehicleDetailPage({
               </div>
             )}
 
+            {/* Recall Badge */}
+            <div className="mt-6 xs:mt-8">
+              <RecallBadge vehicleId={vehicle.id} />
+            </div>
+
+            {/* Vehicle Standing */}
+            <div className="mt-4 xs:mt-6">
+              <VehicleStandingCard vehicleId={vehicle.id} />
+            </div>
+
             {/* Vehicle Details */}
-            <div className="mt-8 bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
-              <h2 className="text-2xl font-bold text-brand-navy dark:text-brand-white mb-4">
+            <div className="mt-6 xs:mt-8 bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-4 xs:p-6 lg:p-8 border border-brand-white dark:border-brand-navy/50">
+              <h2 className="text-xl xs:text-2xl lg:text-3xl font-bold text-brand-navy dark:text-brand-white mb-4 xs:mb-6">
                 Vehicle Details
               </h2>
-              <dl className="grid grid-cols-2 gap-4">
+              <dl className="grid grid-cols-1 fold:grid-cols-2 gap-3 xs:gap-4">
                 <div>
                   <dt className="text-sm font-medium text-brand-gray dark:text-brand-white/70">Make</dt>
                   <dd className="mt-1 text-brand-navy dark:text-brand-white">{vehicle.make}</dd>
@@ -220,15 +238,15 @@ export default async function VehicleDetailPage({
           </div>
 
           {/* Right Column - Booking Form */}
-          <div className="lg:sticky lg:top-8 lg:h-fit">
-            <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
-              <div className="mb-6">
-                <h1 className="text-3xl font-bold text-brand-navy dark:text-brand-white mb-2">
+          <div className="lg:sticky lg:top-8 xl:top-12 lg:h-fit">
+            <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-4 xs:p-6 lg:p-8 border border-brand-white dark:border-brand-navy/50">
+              <div className="mb-4 xs:mb-6">
+                <h1 className="text-2xl xs:text-3xl lg:text-4xl font-bold text-brand-navy dark:text-brand-white mb-2">
                   {vehicle.year} {vehicle.make} {vehicle.model}
                 </h1>
-                <p className="text-2xl font-bold text-brand-blue dark:text-brand-blue-light">
+                <p className="text-xl xs:text-2xl lg:text-3xl font-bold text-brand-blue dark:text-brand-blue-light">
                   {formatCurrency(vehicle.price_per_day)}
-                  <span className="text-lg font-normal text-brand-gray dark:text-brand-white/70">/day</span>
+                  <span className="text-base xs:text-lg font-normal text-brand-gray dark:text-brand-white/70">/day</span>
                 </p>
               </div>
 

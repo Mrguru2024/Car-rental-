@@ -46,7 +46,7 @@ export default async function RenterDashboardPage() {
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 xs:py-8 sm:py-10 lg:py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-brand-navy dark:text-brand-white mb-2">
             Renter Dashboard
@@ -83,7 +83,7 @@ export default async function RenterDashboardPage() {
         )}
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 fold:grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 xs:gap-4 sm:gap-6 mb-6 xs:mb-8">
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
             <h3 className="text-sm font-medium text-brand-gray dark:text-brand-white/70 mb-1">
               Total Bookings
@@ -178,7 +178,7 @@ export default async function RenterDashboardPage() {
         )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 fold:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 xs:gap-4 sm:gap-6">
           <Link
             href="/listings"
             className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
@@ -199,6 +199,28 @@ export default async function RenterDashboardPage() {
             </h3>
             <p className="text-sm text-brand-gray dark:text-brand-white/70">
               View all your bookings and trip history
+            </p>
+          </Link>
+          <Link
+            href="/renter/saved"
+            className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+          >
+            <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-2">
+              Saved Vehicles
+            </h3>
+            <p className="text-sm text-brand-gray dark:text-brand-white/70">
+              Your favorite vehicles
+            </p>
+          </Link>
+          <Link
+            href="/renter/reviews"
+            className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+          >
+            <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-2">
+              Reviews
+            </h3>
+            <p className="text-sm text-brand-gray dark:text-brand-white/70">
+              Rate your experiences
             </p>
           </Link>
         </div>

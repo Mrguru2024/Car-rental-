@@ -24,6 +24,26 @@
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* Responsive container max-widths for ultra-wide displays */
+  @media (min-width: 1920px) {
+    .container-responsive {
+      max-width: 1400px;
+    }
+  }
+  
+  @media (min-width: 2560px) {
+    .container-responsive {
+      max-width: 1600px;
+    }
+  }
+  
+  /* Smooth transitions for responsive breakpoints */
+  * {
+    transition-property: width, height, padding, margin, font-size;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
 }
 
 /* Range slider styling - Custom CSS required for pseudo-elements that Tailwind cannot handle */

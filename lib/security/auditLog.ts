@@ -7,10 +7,14 @@ import { createClient } from '@/lib/supabase/server'
 
 export interface AuditLogEntry {
   user_id?: string
+  actor_role?: string
   action: string
   resource_type: string
   resource_id?: string
+  previous_state?: Record<string, any>
+  new_state?: Record<string, any>
   details?: Record<string, any>
+  notes?: string
   ip_address?: string
   user_agent?: string
   success: boolean
@@ -30,10 +34,14 @@ export async function logAuditEvent(entry: AuditLogEntry): Promise<void> {
     
     const { error } = await supabase.from('audit_logs').insert({
       user_id: entry.user_id || null,
+      actor_role: entry.actor_role || null,
       action: entry.action,
       resource_type: entry.resource_type,
       resource_id: entry.resource_id || null,
+      previous_state: entry.previous_state || null,
+      new_state: entry.new_state || null,
       details: entry.details || {},
+      notes: entry.notes || null,
       ip_address,
       user_agent,
       success: entry.success,

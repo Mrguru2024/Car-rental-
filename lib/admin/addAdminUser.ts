@@ -30,10 +30,13 @@ import { createAdminClient } from '@/lib/supabase/admin' // Use admin client wit
  */
 export async function addAdminUser(
   userId: string,
-  role: 'admin' | 'prime_admin' | 'super_admin',
+  role?: 'admin' | 'prime_admin' | 'super_admin',
   fullName?: string
 ): Promise<string> {
   const supabase = createAdminClient() // Uses service role key
+
+  // Default to 'admin' role if not specified (for admin portal registrations)
+  const finalRole = role || 'admin'
 
   // Validate role
   const allowedRoles: Array<'admin' | 'prime_admin' | 'super_admin'> = [
@@ -41,16 +44,17 @@ export async function addAdminUser(
     'prime_admin',
     'super_admin',
   ]
-  if (!allowedRoles.includes(role)) {
+  if (!allowedRoles.includes(finalRole)) {
     throw new Error(
-      `Invalid role: ${role}. Allowed roles: ${allowedRoles.join(', ')}`
+      `Invalid role: ${finalRole}. Allowed roles: ${allowedRoles.join(', ')}`
     )
   }
 
   // Use the secure database function
+  // If role is not provided, it will default to 'admin' in the database function
   const { data, error } = await supabase.rpc('add_admin_user', {
     p_user_id: userId,
-    p_role: role,
+    p_role: finalRole,
     p_full_name: fullName || null,
   })
 

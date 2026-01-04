@@ -22,15 +22,27 @@ export default function ByoiApprovalClient({ byoiDocs: initialByoiDocs }: ByoiAp
     try {
       const notes = adminNotes[docId] || null
 
-      const { error } = await supabase
-        .from('byoi_documents')
-        .update({
+      // Use API endpoint for audit logging
+      const response = await fetch(`/api/admin/byoi/${docId}/decision`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           status,
           admin_notes: notes,
-        })
-        .eq('id', docId)
+        }),
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json()
+          throw new Error(error.error || `Failed to ${status} document`)
+        } else {
+          throw new Error(`Failed to ${status} document: ${response.statusText}`)
+        }
+      }
 
       // Remove from list if approved, update if rejected
       setByoiDocs((prev) => prev.filter((doc) => doc.id !== docId))
