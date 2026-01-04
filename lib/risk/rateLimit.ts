@@ -13,6 +13,7 @@ export type RateLimitAction =
   | 'api_makes'
   | 'api_models'
   | 'autodev_photos'
+  | 'recall_lookup'
 
 interface RateLimitConfig {
   maxAttempts: number

@@ -71,7 +71,7 @@ export default async function DealerAnalyticsPage() {
     return sum + bookedDays
   }, 0) || 0
 
-  const totalAvailableDays = vehicles?.length * 90 || 1 // Assuming 90 days lookback
+  const totalAvailableDays = (vehicles?.length ?? 0) * 90 || 1 // Assuming 90 days lookback
   const occupancyRate = totalAvailableDays > 0 ? (totalDays / totalAvailableDays) * 100 : 0
 
   // Average booking value

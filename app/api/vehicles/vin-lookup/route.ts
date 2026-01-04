@@ -8,6 +8,8 @@
 import { NextResponse } from 'next/server'
 import { decodeVINExtended, normalizeNHTSAData } from '@/lib/api/nhtsa'
 import { getVINPhotos, isValidVIN } from '@/lib/api/autodev'
+import { checkRateLimit, recordRateLimitAttempt } from '@/lib/risk/rateLimit'
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
   try {
@@ -22,6 +24,35 @@ export async function GET(request: Request) {
     // Validate VIN format
     if (!isValidVIN(vin)) {
       return NextResponse.json({ error: 'Invalid VIN format' }, { status: 400 })
+    }
+
+    // Rate limiting: Use user ID if authenticated, otherwise IP address
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const identifier = user?.id || ipAddress
+
+    // Check rate limit for VIN lookup
+    const rateLimitCheck = await checkRateLimit(identifier, 'vin_lookup')
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Rate limit exceeded. Please try again later.',
+          retryAfter: Math.ceil((rateLimitCheck.resetAt.getTime() - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((rateLimitCheck.resetAt.getTime() - Date.now()) / 1000).toString(),
+            'X-RateLimit-Limit': '50',
+            'X-RateLimit-Remaining': rateLimitCheck.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitCheck.resetAt.toISOString(),
+          },
+        }
+      )
     }
 
     // Decode VIN using NHTSA (primary source)

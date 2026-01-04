@@ -16,7 +16,7 @@ Auto.dev provides professional vehicle photos based on VIN (Vehicle Identificati
    
    Add the following to your `.env.local` file:
    ```env
-   AUTO_DEV_API_KEY=sk_ad_9WfReAZBam8w_Ex4rpXU8Yjr
+   AUTO_DEV_API_KEY=your_auto_dev_api_key_here
    ```
 
    For production (Vercel), add it to your environment variables in the Vercel dashboard.

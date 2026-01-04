@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast/ToastProvider'
 import AddressInput from '@/components/Address/AddressInput'
+import MakeAutocomplete from '@/components/Vehicle/MakeAutocomplete'
+import ModelAutocomplete from '@/components/Vehicle/ModelAutocomplete'
 
 interface VehicleFormClientProps {
   readonly profileId: string

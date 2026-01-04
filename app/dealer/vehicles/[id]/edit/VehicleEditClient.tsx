@@ -47,6 +47,52 @@ export default function VehicleEditClient({ vehicleId, initialData }: VehicleEdi
     }
   }
 
+  const handleVINLookup = async () => {
+    if (!formData.vin || formData.vin.length !== 17) {
+      showToast('Please enter a valid 17-character VIN', 'error')
+      return
+    }
+
+    setVinLookupLoading(true)
+    try {
+      const response = await fetch(`/api/vehicles/vin-lookup?vin=${encodeURIComponent(formData.vin)}`)
+      const contentType = response.headers.get('content-type')
+      
+      if (!response.ok) {
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to lookup VIN')
+        } else {
+          throw new Error(`Failed to lookup VIN: ${response.statusText}`)
+        }
+      }
+
+      const data = await response.json()
+      
+      if (data.success && data.data) {
+        // Auto-fill form fields
+        setFormData((prev) => ({
+          ...prev,
+          make: data.data.make || prev.make,
+          model: data.data.model || prev.model,
+          year: data.data.year || prev.year,
+        }))
+
+        // Add Auto.dev photos to previews
+        if (data.photos && data.photos.length > 0) {
+          setNewPhotoPreviews(data.photos.slice(0, 10)) // Limit to 10 photos
+          showToast(`Found vehicle data and ${data.photos.length} photos!`, 'success')
+        } else {
+          showToast('Vehicle data found, but no photos available', 'success')
+        }
+      }
+    } catch (error: any) {
+      showToast(error.message || 'Failed to lookup VIN', 'error')
+    } finally {
+      setVinLookupLoading(false)
+    }
+  }
+
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     setNewPhotos((prev) => [...prev, ...files])

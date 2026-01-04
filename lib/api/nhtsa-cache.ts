@@ -62,6 +62,8 @@ export function setCachedModels(make: string, year: number | undefined, models: 
   // Limit cache size (keep last 100 entries)
   if (modelsCache.size > 100) {
     const firstKey = modelsCache.keys().next().value
-    modelsCache.delete(firstKey)
+    if (firstKey) {
+      modelsCache.delete(firstKey)
+    }
   }
 }
