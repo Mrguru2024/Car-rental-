@@ -15,7 +15,7 @@ import { getPrimeAdminRoles, isRoleAllowed } from '@/lib/utils/roleHierarchy'
 
 export async function POST(
   request: Request,
-  { params }: { params: { entity: string; id: string } }
+  { params }: { params: Promise<{ entity: string; id: string }> }
 ) {
   try {
     const supabase = await createClient()
@@ -61,7 +61,7 @@ export async function POST(
       )
     }
 
-    const { entity, id } = params
+    const { entity, id } = await params
     let previousState: any = null
     let newState: any = null
     let success = false

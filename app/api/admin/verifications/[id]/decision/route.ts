@@ -12,7 +12,7 @@ import { getAdminRoles, isRoleAllowed } from '@/lib/utils/roleHierarchy'
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient()
@@ -49,7 +49,7 @@ export async function POST(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Get current state (previous_state)
     const { data: current } = await supabase

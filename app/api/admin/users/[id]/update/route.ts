@@ -13,7 +13,7 @@ import { getPrimeAdminRoles, isRoleAllowed } from '@/lib/utils/roleHierarchy'
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient()
@@ -42,7 +42,7 @@ export async function PATCH(
     const body = await request.json()
     const { role, verification_status, notes } = body
 
-    const { id } = params
+    const { id } = await params
 
     // Get current state (previous_state)
     const adminSupabase = createAdminClient()
