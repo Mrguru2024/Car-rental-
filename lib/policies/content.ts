@@ -224,6 +224,43 @@ Violations may result in immediate account suspension or permanent ban.
 By clicking "Accept", you agree to follow the no-confrontation policy.
     `.trim(),
   },
+  dealer_listing_requirements_v1: {
+    key: 'dealer_listing_requirements_v1',
+    version: '1.0',
+    title: 'Listing Requirements',
+    content: `
+**Vehicle Listing Requirements**
+
+By publishing a listing, you certify that:
+
+**Year Requirement**
+- Vehicle year must be 2010 or newer (Platform minimum)
+
+**Title Type**
+- Only clean titles are allowed
+- Platform policy prohibits salvage, flood, and rebuilt titles
+
+**Inspection**
+- Vehicle must have passed inspection to be published
+- Failed inspection vehicles cannot be listed
+
+**Photos and Description**
+- At least 3 photos are required
+- All information must be accurate and truthful
+- Photos must accurately represent the vehicle's current condition
+
+**Prohibited Practices**
+- Listing vehicles with year < 2010
+- Using salvage, flood, or rebuilt titles
+- Publishing vehicles with failed inspection
+- Misrepresenting vehicle condition or features
+
+**Consequences**
+Inaccurate listings may result in listing removal, account restrictions, or permanent ban.
+
+By clicking "Accept", you certify that your listing meets all requirements and contains accurate information.
+    `.trim(),
+  },
 }
 
 export function getPolicy(key: string, version: string): PolicyDefinition | null {

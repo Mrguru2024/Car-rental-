@@ -2,9 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Header from '@/components/Layout/Header'
 import Link from 'next/link'
-import { formatCurrency } from '@/lib/utils/format'
 import SavedVehiclesClient from './SavedVehiclesClient'
-import VehicleCard from '@/components/Vehicle/VehicleCard'
 
 export default async function SavedVehiclesPage() {
   const supabase = await createClient()
@@ -26,28 +24,44 @@ export default async function SavedVehiclesPage() {
     redirect('/onboarding')
   }
 
-  // Get saved vehicles
+  // Get saved vehicles with active status filter
   const { data: savedVehicles } = await supabase
     .from('saved_vehicles')
-    .select('*, vehicles(*, vehicle_photos(file_path))')
+    .select(`
+      *,
+      vehicles!inner(
+        *,
+        vehicle_photos(file_path)
+      )
+    `)
     .eq('renter_id', profile.id)
     .eq('vehicles.status', 'active')
     .order('created_at', { ascending: false })
 
+  // Extract vehicles from saved_vehicles join
   const vehicles = savedVehicles?.map((sv: any) => sv.vehicles).filter(Boolean) || []
 
   return (
     <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-brand-navy dark:text-brand-white mb-2">
-            Saved Vehicles
-          </h1>
-          <p className="text-brand-gray dark:text-brand-white/70">
-            Your favorite vehicles for easy access
-          </p>
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 xs:py-8 sm:py-10 lg:py-12">
+        <div className="mb-6 xs:mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h1 className="text-2xl xs:text-3xl font-bold text-brand-navy dark:text-brand-white mb-2">
+                Saved Vehicles
+              </h1>
+              <p className="text-sm xs:text-base text-brand-gray dark:text-brand-white/70">
+                Your favorite vehicles for easy access
+              </p>
+            </div>
+            {vehicles.length > 0 && (
+              <div className="text-sm text-brand-gray dark:text-brand-white/70">
+                {vehicles.length} {vehicles.length === 1 ? 'vehicle' : 'vehicles'}
+              </div>
+            )}
+          </div>
         </div>
 
         {vehicles.length > 0 ? (

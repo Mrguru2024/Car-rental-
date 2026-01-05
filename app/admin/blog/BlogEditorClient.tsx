@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/components/Toast/ToastProvider'
 import RichTextEditor from '@/components/Blog/RichTextEditor'
+import BlogSuggestions from '@/components/Blog/BlogSuggestions'
 
 interface Category {
   id: string
@@ -354,6 +355,32 @@ export default function BlogEditorClient({
     }
   }
 
+  // Handle suggestion selection
+  const handleSuggestionSelect = (type: string, value: any) => {
+    switch (type) {
+      case 'title':
+        setTitle(value)
+        break
+      case 'keyword':
+        if (!metaKeywords.includes(value)) {
+          setMetaKeywords([...metaKeywords, value])
+        }
+        break
+      case 'trending':
+        if (value.title) {
+          setTitle(value.title)
+        }
+        if (value.keywords && Array.isArray(value.keywords)) {
+          const newKeywords = value.keywords.filter((k: string) => !metaKeywords.includes(k))
+          setMetaKeywords([...metaKeywords, ...newKeywords])
+        }
+        break
+      case 'metaDescription':
+        setMetaDescription(value)
+        break
+    }
+  }
+
   // Add keyword to meta keywords
   const handleAddKeyword = (keyword: string) => {
     if (!metaKeywords.includes(keyword)) {
@@ -520,6 +547,14 @@ export default function BlogEditorClient({
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* AI Suggestions */}
+          <BlogSuggestions
+            category={categories.find(c => c.id === categoryId)?.name}
+            onSuggestionSelect={handleSuggestionSelect}
+            currentTitle={title}
+            currentKeywords={metaKeywords}
+          />
+
           {/* Publish Status */}
           <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
             <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-4">

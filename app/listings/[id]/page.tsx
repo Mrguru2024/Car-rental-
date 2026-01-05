@@ -7,6 +7,7 @@ import BookingForm from '@/components/Booking/BookingForm'
 import SaveButton from '@/components/Vehicle/SaveButton'
 import RecallBadge from '@/components/Vehicle/RecallBadge'
 import VehicleStandingCard from '@/components/Vehicle/VehicleStandingCard'
+import TierBadge from '@/components/Vehicle/TierBadge'
 import { generateListingMetadata, generateListingJsonLd } from './metadata'
 import type { Metadata } from 'next'
 
@@ -184,9 +185,21 @@ export default async function VehicleDetailPage({
 
             {/* Vehicle Details */}
             <div className="mt-6 xs:mt-8 bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-4 xs:p-6 lg:p-8 border border-brand-white dark:border-brand-navy/50">
-              <h2 className="text-xl xs:text-2xl lg:text-3xl font-bold text-brand-navy dark:text-brand-white mb-4 xs:mb-6">
-                Vehicle Details
-              </h2>
+              <div className="flex items-center justify-between mb-4 xs:mb-6">
+                <h2 className="text-xl xs:text-2xl lg:text-3xl font-bold text-brand-navy dark:text-brand-white">
+                  Vehicle Details
+                </h2>
+                {vehicle.vehicle_tier && (
+                  <TierBadge tier={vehicle.vehicle_tier as any} showYearRange />
+                )}
+              </div>
+              {vehicle.vehicle_tier === 'tier4' && (
+                <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <p className="text-sm text-amber-800 dark:text-amber-200">
+                    <strong>Tier 4 vehicles</strong> require Premium protection plan and additional screening (MVR + Soft Credit).
+                  </p>
+                </div>
+              )}
               <dl className="grid grid-cols-1 fold:grid-cols-2 gap-3 xs:gap-4">
                 <div>
                   <dt className="text-sm font-medium text-brand-gray dark:text-brand-white/70">Make</dt>

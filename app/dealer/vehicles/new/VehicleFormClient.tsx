@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast/ToastProvider'
 import AddressInput from '@/components/Address/AddressInput'
 import MakeAutocomplete from '@/components/Vehicle/MakeAutocomplete'
 import ModelAutocomplete from '@/components/Vehicle/ModelAutocomplete'
+import { computeVehicleTier, getTierDisplayName, getTierYearRange, validateVehicleListing, PLATFORM_MIN_YEAR } from '@/lib/vehicle-tiers'
 
 interface VehicleFormClientProps {
   readonly profileId: string
@@ -27,10 +28,38 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
     description: '',
     mileage_limit: null as number | null,
     status: 'active' as 'active' | 'inactive',
+    title_type: 'clean' as 'clean' | 'rebuilt' | 'salvage' | 'flood' | 'other',
+    inspection_status: 'pending' as 'pending' | 'passed' | 'failed',
+    inspection_notes: '',
   })
+  const [computedTier, setComputedTier] = useState<string>('')
+  const [validationErrors, setValidationErrors] = useState<string[]>([])
   const [photos, setPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [vinLookupLoading, setVinLookupLoading] = useState(false)
+
+  // Compute tier when year changes
+  useEffect(() => {
+    if (formData.year >= PLATFORM_MIN_YEAR) {
+      const tier = computeVehicleTier(formData.year)
+      setComputedTier(tier)
+    } else {
+      setComputedTier('')
+    }
+  }, [formData.year])
+
+  // Validate vehicle when relevant fields change
+  useEffect(() => {
+    if (formData.year && formData.title_type && formData.inspection_status) {
+      const validation = validateVehicleListing({
+        model_year: formData.year,
+        title_type: formData.title_type,
+        inspection_status: formData.inspection_status,
+        photos_count: photoPreviews.length,
+      })
+      setValidationErrors(validation.errors)
+    }
+  }, [formData.year, formData.title_type, formData.inspection_status, photoPreviews.length])
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -140,13 +169,34 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
         return
       }
 
-      if (formData.year < 1900 || formData.year > new Date().getFullYear() + 1) {
+      // Validate year (platform minimum is 2010)
+      if (formData.year < PLATFORM_MIN_YEAR) {
+        showToast(`Vehicle year must be ${PLATFORM_MIN_YEAR} or newer. Platform minimum is ${PLATFORM_MIN_YEAR}.`, 'error')
+        setLoading(false)
+        return
+      }
+
+      if (formData.year > new Date().getFullYear() + 1) {
         showToast('Please enter a valid year', 'error')
         setLoading(false)
         return
       }
 
-      // Create vehicle
+      // Validate vehicle listing
+      const validation = validateVehicleListing({
+        model_year: formData.year,
+        title_type: formData.title_type,
+        inspection_status: formData.inspection_status,
+        photos_count: photoPreviews.length,
+      })
+
+      if (!validation.ok) {
+        showToast(validation.errors.join('. '), 'error')
+        setLoading(false)
+        return
+      }
+
+      // Create vehicle (tier will be auto-computed by database trigger)
       const { data: vehicle, error: vehicleError } = await supabase
         .from('vehicles')
         .insert({
@@ -160,6 +210,9 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
           description: formData.description || null,
           mileage_limit: formData.mileage_limit,
           status: formData.status,
+          title_type: formData.title_type,
+          inspection_status: formData.inspection_status,
+          inspection_notes: formData.inspection_notes || null,
         })
         .select()
         .single()
@@ -242,7 +295,51 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
         </p>
       </div>
 
+      {/* Validation Errors */}
+      {validationErrors.length > 0 && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+          <h3 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">Validation Errors</h3>
+          <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
+            {validationErrors.map((error, idx) => (
+              <li key={idx}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label htmlFor="year" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
+            Year <span className="text-red-500">*</span>
+            {computedTier && (
+              <span className="ml-2 text-xs font-normal text-brand-gray dark:text-brand-white/70">
+                (Tier: {computedTier.toUpperCase()} - {getTierDisplayName(computedTier as any)})
+              </span>
+            )}
+          </label>
+          <input
+            id="year"
+            type="number"
+            name="year"
+            value={formData.year}
+            onChange={handleInputChange}
+            min={PLATFORM_MIN_YEAR}
+            max={new Date().getFullYear() + 1}
+            required
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white ${
+              formData.year < PLATFORM_MIN_YEAR
+                ? 'border-red-500 dark:border-red-500'
+                : 'border-brand-gray dark:border-brand-navy'
+            }`}
+            placeholder={`${PLATFORM_MIN_YEAR} or newer`}
+          />
+          {formData.year < PLATFORM_MIN_YEAR && (
+            <p className="text-xs text-red-500 mt-1">
+              Minimum year is {PLATFORM_MIN_YEAR} (Platform requirement)
+            </p>
+          )}
+        </div>
+
         <div>
           <label htmlFor="make" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
             Make <span className="text-red-500">*</span>
@@ -291,6 +388,62 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
         </div>
 
         <div>
+          <label htmlFor="title_type" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
+            Title Type <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="title_type"
+            name="title_type"
+            value={formData.title_type}
+            onChange={handleInputChange}
+            required
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white ${
+              ['salvage', 'flood', 'rebuilt'].includes(formData.title_type)
+                ? 'border-red-500 dark:border-red-500'
+                : 'border-brand-gray dark:border-brand-navy'
+            }`}
+          >
+            <option value="clean">Clean</option>
+            <option value="other">Other</option>
+            <option value="rebuilt" disabled>Rebuilt (Not Allowed)</option>
+            <option value="salvage" disabled>Salvage (Not Allowed)</option>
+            <option value="flood" disabled>Flood (Not Allowed)</option>
+          </select>
+          {['salvage', 'flood', 'rebuilt'].includes(formData.title_type) && (
+            <p className="text-xs text-red-500 mt-1">
+              Platform policy prohibits salvage, flood, and rebuilt titles.
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="inspection_status" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
+            Inspection Status <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="inspection_status"
+            name="inspection_status"
+            value={formData.inspection_status}
+            onChange={handleInputChange}
+            required
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white ${
+              formData.inspection_status === 'failed'
+                ? 'border-red-500 dark:border-red-500'
+                : 'border-brand-gray dark:border-brand-navy'
+            }`}
+          >
+            <option value="pending">Pending</option>
+            <option value="passed">Passed</option>
+            <option value="failed">Failed</option>
+          </select>
+          {formData.inspection_status === 'failed' && (
+            <p className="text-xs text-red-500 mt-1">
+              Vehicles with failed inspection cannot be published.
+            </p>
+          )}
+        </div>
+
+        <div>
           <label htmlFor="status" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
             Status
           </label>
@@ -306,6 +459,24 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
           </select>
         </div>
       </div>
+
+      {/* Inspection Notes */}
+      {formData.inspection_status !== 'pending' && (
+        <div>
+          <label htmlFor="inspection_notes" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
+            Inspection Notes (optional)
+          </label>
+          <textarea
+            id="inspection_notes"
+            name="inspection_notes"
+            value={formData.inspection_notes}
+            onChange={handleInputChange}
+            rows={3}
+            className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white"
+            placeholder="Add notes about the inspection..."
+          />
+        </div>
+      )}
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">

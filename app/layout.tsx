@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { ThemeProvider } from '@/lib/contexts/ThemeContext'
 import { ToastProvider } from '@/components/Toast/ToastProvider'
+import ChatWidget from '@/components/Support/ChatWidget'
 
 export const metadata: Metadata = {
   title: {
@@ -37,7 +38,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            {children}
+            <ChatWidget />
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

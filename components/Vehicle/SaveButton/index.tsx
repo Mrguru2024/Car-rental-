@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/Toast/ToastProvider'
 
 interface SaveButtonProps {
   vehicleId: string
@@ -10,6 +11,7 @@ interface SaveButtonProps {
 
 export default function SaveButton({ vehicleId, className = '' }: SaveButtonProps) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(false)
   const [checking, setChecking] = useState(true)
@@ -68,9 +70,18 @@ export default function SaveButton({ vehicleId, className = '' }: SaveButtonProp
       }
 
       setSaved(data.saved)
-    } catch (error) {
+      if (data.saved) {
+        showToast('Vehicle saved to favorites', 'success')
+      } else {
+        showToast('Vehicle removed from favorites', 'success')
+      }
+    } catch (error: any) {
       console.error('Error toggling save:', error)
-      // Optionally show a toast or error message to user
+      if (error.message?.includes('sign in')) {
+        showToast('Please sign in to save vehicles', 'error')
+      } else {
+        showToast(error.message || 'Failed to update saved status', 'error')
+      }
     } finally {
       setLoading(false)
     }
