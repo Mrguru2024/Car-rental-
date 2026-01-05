@@ -143,7 +143,11 @@ export default function SecurityMonitoringClient({
   const [disputeWorkflowData, setDisputeWorkflowData] = useState<Record<string, DisputeWorkflowData>>({})
   const [stats, setStats] = useState<SecurityStats>(initialStats)
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'events' | 'audit' | 'activity' | 'disputes'>('events')
+  const [activeTab, setActiveTab] = useState<'events' | 'audit' | 'activity' | 'disputes' | 'reports'>('events')
+  const [reportDateRange, setReportDateRange] = useState({
+    start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+    end: new Date(),
+  })
   const [disputeFilters, setDisputeFilters] = useState({
     status: 'all' as 'all' | 'open' | 'awaiting_response' | 'under_review' | 'resolved' | 'escalated' | 'closed',
     category: 'all' as 'all' | 'vehicle_damage' | 'late_return' | 'cleaning_fee' | 'mechanical_issue' | 'safety_concern' | 'billing_issue' | 'other',
@@ -154,8 +158,119 @@ export default function SecurityMonitoringClient({
     resolved: 'unresolved' as 'all' | 'resolved' | 'unresolved',
     dateRange: '24h' as '1h' | '24h' | '7d' | '30d' | 'all',
   })
+  const [isRealTime, setIsRealTime] = useState(true)
+  const [newEventCount, setNewEventCount] = useState(0)
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date())
+  const [generatingReport, setGeneratingReport] = useState(false)
 
-  // Real-time polling (optimized - only fetch when tab is active or filters change)
+  // Fetch stats separately
+  const fetchStats = useCallback(async () => {
+    try {
+      const [
+        { count: totalEvents },
+        { count: unresolvedEvents },
+        { count: criticalEvents },
+        { count: highSeverityEvents },
+        { count: failedLogins },
+      ] = await Promise.all([
+        supabase.from('security_events').select('*', { count: 'exact', head: true }),
+        supabase.from('security_events').select('*', { count: 'exact', head: true }).eq('resolved', false),
+        supabase
+          .from('security_events')
+          .select('*', { count: 'exact', head: true })
+          .eq('resolved', false)
+          .eq('severity', 'critical'),
+        supabase
+          .from('security_events')
+          .select('*', { count: 'exact', head: true })
+          .eq('resolved', false)
+          .eq('severity', 'high'),
+        supabase
+          .from('security_events')
+          .select('*', { count: 'exact', head: true })
+          .eq('resolved', false)
+          .eq('event_type', 'failed_login'),
+      ])
+
+      setStats({
+        totalEvents: totalEvents || 0,
+        unresolvedEvents: unresolvedEvents || 0,
+        criticalEvents: criticalEvents || 0,
+        highSeverityEvents: highSeverityEvents || 0,
+        failedLogins: failedLogins || 0,
+      })
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+    }
+  }, [supabase])
+
+  // Real-time subscriptions setup
+  useEffect(() => {
+    if (!isRealTime) return
+
+    // Subscribe to security_events changes
+    const eventsChannel = supabase
+      .channel('security-events-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'security_events',
+        },
+        (payload) => {
+          console.log('Security event change:', payload)
+          if (payload.eventType === 'INSERT') {
+            const newEvent = payload.new as SecurityEvent
+            setSecurityEvents((prev) => [newEvent, ...prev])
+            setNewEventCount((prev) => prev + 1)
+            setLastUpdateTime(new Date())
+            
+            // Show toast for critical/high severity events
+            if (newEvent.severity === 'critical' || newEvent.severity === 'high') {
+              showToast(`New ${newEvent.severity} security event: ${newEvent.event_type}`, 'error')
+            }
+            
+            // Update stats
+            fetchStats()
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedEvent = payload.new as SecurityEvent
+            setSecurityEvents((prev) =>
+              prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
+            )
+            setLastUpdateTime(new Date())
+            fetchStats()
+          }
+        }
+      )
+      .subscribe()
+
+    // Subscribe to audit_logs changes
+    const auditChannel = supabase
+      .channel('audit-logs-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'audit_logs',
+        },
+        (payload) => {
+          console.log('Audit log change:', payload)
+          const newLog = payload.new as AuditLog
+          setAuditLogs((prev) => [newLog, ...prev])
+          setLastUpdateTime(new Date())
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(eventsChannel)
+      supabase.removeChannel(auditChannel)
+    }
+  }, [isRealTime, supabase, showToast, fetchStats])
+
+  // Initial data fetch and periodic refresh (fallback if real-time fails)
   const fetchData = useCallback(async () => {
     try {
       const dateFilter = getDateFilter(filters.dateRange)
@@ -283,10 +398,66 @@ export default function SecurityMonitoringClient({
 
   useEffect(() => {
     fetchData()
-    // Increase polling interval to 15 seconds to reduce server load
-    const interval = setInterval(fetchData, 15000)
-    return () => clearInterval(interval)
-  }, [fetchData])
+    fetchStats()
+    
+    // Fallback polling if real-time is disabled or fails (every 30 seconds)
+    if (!isRealTime) {
+      const interval = setInterval(() => {
+        fetchData()
+        fetchStats()
+      }, 30000)
+      return () => clearInterval(interval)
+    } else {
+      // Still refresh data periodically to catch any missed events (every 60 seconds)
+      const interval = setInterval(() => {
+        fetchData()
+        fetchStats()
+      }, 60000)
+      return () => clearInterval(interval)
+    }
+  }, [fetchData, fetchStats, isRealTime])
+
+  // Generate security report
+  const handleGenerateReport = async (format: 'csv' | 'pdf', dateRange: { start: Date; end: Date }) => {
+    setGeneratingReport(true)
+    try {
+      const params = new URLSearchParams({
+        format,
+        startDate: dateRange.start.toISOString(),
+        endDate: dateRange.end.toISOString(),
+        severity: filters.severity,
+        eventType: filters.eventType,
+        resolved: filters.resolved,
+      })
+
+      const response = await fetch(`/api/admin/security/reports?${params.toString()}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate report')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `security-report-${format}-${dateRange.start.toISOString().split('T')[0]}-${dateRange.end.toISOString().split('T')[0]}.${format}`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      showToast('Report generated successfully', 'success')
+    } catch (error: any) {
+      showToast(error.message || 'Failed to generate report', 'error')
+    } finally {
+      setGeneratingReport(false)
+    }
+  }
+
+  // Clear new event count when user views events
+  const handleViewEvents = () => {
+    setNewEventCount(0)
+  }
 
   const handleResolveEvent = async (eventId: string) => {
     setLoading(true)
@@ -335,6 +506,35 @@ export default function SecurityMonitoringClient({
 
   return (
     <div className="space-y-6">
+      {/* Real-time Status and Controls */}
+      <div className="flex items-center justify-between bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-4 border border-brand-white dark:border-brand-navy/50">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className={`w-3 h-3 rounded-full ${isRealTime ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+            <span className="text-sm font-medium text-brand-navy dark:text-brand-white">
+              {isRealTime ? 'Real-time Active' : 'Polling Mode'}
+            </span>
+          </div>
+          {newEventCount > 0 && (
+            <button
+              onClick={handleViewEvents}
+              className="px-3 py-1 bg-red-500 text-white rounded-full text-xs font-medium hover:bg-red-600 transition-colors"
+            >
+              {newEventCount} New Event{newEventCount > 1 ? 's' : ''}
+            </button>
+          )}
+          <span className="text-xs text-brand-gray dark:text-brand-white/70">
+            Last update: {lastUpdateTime.toLocaleTimeString()}
+          </span>
+        </div>
+        <button
+          onClick={() => setIsRealTime(!isRealTime)}
+          className="px-4 py-2 text-sm border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg hover:bg-brand-gray/5 dark:hover:bg-brand-navy/30 transition-colors"
+        >
+          {isRealTime ? 'Disable Real-time' : 'Enable Real-time'}
+        </button>
+      </div>
+
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-4 border border-brand-white dark:border-brand-navy/50">
@@ -366,6 +566,7 @@ export default function SecurityMonitoringClient({
             { id: 'events', label: 'Security Events', count: filteredEvents.length },
             { id: 'audit', label: 'Audit Logs', count: auditLogs.length },
             { id: 'activity', label: 'User Activity', count: auditLogs.filter((log) => log.action.includes('login') || log.action.includes('logout')).length },
+            { id: 'reports', label: 'Reports', count: null },
             ...(isSuperAdmin
               ? [{ id: 'disputes', label: 'Dispute Workflow', count: disputes.length }]
               : []),
@@ -380,7 +581,7 @@ export default function SecurityMonitoringClient({
               }`}
             >
               {tab.label}
-              {tab.count > 0 && (
+              {tab.count !== null && tab.count > 0 && (
                 <span className="ml-2 py-0.5 px-2 rounded-full bg-brand-gray/20 dark:bg-brand-navy/50 text-xs">
                   {tab.count}
                 </span>
@@ -828,6 +1029,159 @@ export default function SecurityMonitoringClient({
               No disputes found matching the selected filters
             </div>
           )}
+        </div>
+      )}
+
+      {/* Reports Tab */}
+      {activeTab === 'reports' && (
+        <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
+          <h2 className="text-xl font-bold text-brand-navy dark:text-brand-white mb-6">Security Reports</h2>
+          
+          <div className="space-y-6">
+            {/* Date Range Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={reportDateRange.start.toISOString().split('T')[0]}
+                  onChange={(e) =>
+                    setReportDateRange({
+                      ...reportDateRange,
+                      start: new Date(e.target.value),
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={reportDateRange.end.toISOString().split('T')[0]}
+                  onChange={(e) =>
+                    setReportDateRange({
+                      ...reportDateRange,
+                      end: new Date(e.target.value),
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white"
+                />
+              </div>
+            </div>
+
+            {/* Quick Date Range Buttons */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: 'Last 24 Hours', days: 1 },
+                { label: 'Last 7 Days', days: 7 },
+                { label: 'Last 30 Days', days: 30 },
+                { label: 'Last 90 Days', days: 90 },
+              ].map((range) => (
+                <button
+                  key={range.days}
+                  onClick={() => {
+                    const end = new Date()
+                    const start = new Date(end.getTime() - range.days * 24 * 60 * 60 * 1000)
+                    setReportDateRange({ start, end })
+                  }}
+                  className="px-4 py-2 text-sm border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg hover:bg-brand-gray/5 dark:hover:bg-brand-navy/30 transition-colors"
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Report Options */}
+            <div className="border-t border-brand-gray/20 dark:border-brand-navy/50 pt-6">
+              <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-4">
+                Generate Report
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg">
+                  <h4 className="font-medium text-brand-navy dark:text-brand-white mb-2">CSV Export</h4>
+                  <p className="text-sm text-brand-gray dark:text-brand-white/70 mb-4">
+                    Export security events and audit logs as CSV for analysis in Excel or other tools.
+                  </p>
+                  <button
+                    onClick={() => handleGenerateReport('csv', reportDateRange)}
+                    disabled={generatingReport}
+                    className="w-full px-4 py-2 bg-brand-blue dark:bg-brand-blue-light text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {generatingReport ? 'Generating...' : 'Export CSV'}
+                  </button>
+                </div>
+                <div className="p-4 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg">
+                  <h4 className="font-medium text-brand-navy dark:text-brand-white mb-2">PDF Report</h4>
+                  <p className="text-sm text-brand-gray dark:text-brand-white/70 mb-4">
+                    Generate a formatted PDF report with charts and summaries for documentation.
+                  </p>
+                  <button
+                    onClick={() => handleGenerateReport('pdf', reportDateRange)}
+                    disabled={generatingReport}
+                    className="w-full px-4 py-2 bg-brand-green dark:bg-brand-green text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {generatingReport ? 'Generating...' : 'Generate PDF'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Report Preview/Summary */}
+            <div className="border-t border-brand-gray/20 dark:border-brand-navy/50 pt-6">
+              <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-4">
+                Report Summary
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg">
+                  <div className="text-sm text-brand-gray dark:text-brand-white/70">Events in Range</div>
+                  <div className="text-2xl font-bold text-brand-navy dark:text-brand-white">
+                    {securityEvents.filter(
+                      (e) =>
+                        new Date(e.created_at) >= reportDateRange.start &&
+                        new Date(e.created_at) <= reportDateRange.end
+                    ).length}
+                  </div>
+                </div>
+                <div className="p-4 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg">
+                  <div className="text-sm text-brand-gray dark:text-brand-white/70">Audit Logs</div>
+                  <div className="text-2xl font-bold text-brand-navy dark:text-brand-white">
+                    {auditLogs.filter(
+                      (log) =>
+                        new Date(log.created_at) >= reportDateRange.start &&
+                        new Date(log.created_at) <= reportDateRange.end
+                    ).length}
+                  </div>
+                </div>
+                <div className="p-4 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg">
+                  <div className="text-sm text-brand-gray dark:text-brand-white/70">Critical Events</div>
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                    {securityEvents.filter(
+                      (e) =>
+                        e.severity === 'critical' &&
+                        new Date(e.created_at) >= reportDateRange.start &&
+                        new Date(e.created_at) <= reportDateRange.end
+                    ).length}
+                  </div>
+                </div>
+                <div className="p-4 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg">
+                  <div className="text-sm text-brand-gray dark:text-brand-white/70">Unresolved</div>
+                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                    {securityEvents.filter(
+                      (e) =>
+                        !e.resolved &&
+                        new Date(e.created_at) >= reportDateRange.start &&
+                        new Date(e.created_at) <= reportDateRange.end
+                    ).length}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
