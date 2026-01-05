@@ -100,6 +100,7 @@ export default function Header() {
                   return null
                 }
                 if (user) {
+                  const isSuperAdmin = profile?.role === 'super_admin'
                   return (
                     <>
                       <Link
@@ -108,6 +109,14 @@ export default function Header() {
                       >
                         Dashboard
                       </Link>
+                      {isSuperAdmin && (
+                        <Link
+                          href="/admin/users"
+                          className="text-brand-navy dark:text-brand-white hover:text-brand-blue dark:hover:text-brand-blue-light transition-colors text-xs xs:text-sm sm:text-base whitespace-nowrap px-2 py-1 rounded hover:bg-brand-white/10 dark:hover:bg-brand-navy-light/10"
+                        >
+                          User Mgmt
+                        </Link>
+                      )}
                       <button
                         onClick={handleSignOut}
                         className="text-brand-navy dark:text-brand-white hover:text-brand-blue dark:hover:text-brand-blue-light transition-colors text-xs xs:text-sm sm:text-base whitespace-nowrap px-2 py-1 rounded hover:bg-brand-white/10 dark:hover:bg-brand-navy-light/10"

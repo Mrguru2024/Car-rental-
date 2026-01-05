@@ -2,126 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #F5F7FA; /* brand-white - Page background */
-  --foreground: #0B1C2D; /* brand-navy - App shell, header, footer */
-}
-
-.dark {
-  --background: #0B1C2D; /* brand-navy - App shell, header, footer */
-  --foreground: #F5F7FA; /* brand-white - Page background */
-}
-
 @layer base {
-  body {
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
   }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer components {
+  /* Blog Content Styling */
+  .blog-content {
+    @apply text-brand-navy dark:text-brand-white;
   }
-  
-  /* Responsive container max-widths for ultra-wide displays */
-  @media (min-width: 1920px) {
-    .container-responsive {
-      max-width: 1400px;
-    }
+
+  .blog-content h1,
+  .blog-content h2,
+  .blog-content h3,
+  .blog-content h4 {
+    @apply font-bold text-brand-navy dark:text-brand-white mt-8 mb-4;
   }
-  
-  @media (min-width: 2560px) {
-    .container-responsive {
-      max-width: 1600px;
-    }
+
+  .blog-content h1 {
+    @apply text-3xl;
   }
-  
-  /* Smooth transitions for responsive breakpoints */
-  * {
-    transition-property: width, height, padding, margin, font-size;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+
+  .blog-content h2 {
+    @apply text-2xl;
   }
-}
 
-/* Range slider styling - Custom CSS required for pseudo-elements that Tailwind cannot handle */
-/* Must be outside @layer for proper specificity with pseudo-elements */
-input[type="range"] {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  background: transparent !important;
-  cursor: pointer;
-  width: 100%;
-  height: 8px;
-}
+  .blog-content h3 {
+    @apply text-xl;
+  }
 
-/* Light theme - WebKit browsers (Chrome, Safari, Edge) */
-input[type="range"]::-webkit-slider-runnable-track {
-  background: #374151 !important;
-  height: 8px !important;
-  border-radius: 4px;
-}
+  .blog-content p {
+    @apply mb-4 leading-relaxed;
+  }
 
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  background: #1F6AE1 !important;
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  border: 2px solid #F5F7FA !important;
-  margin-top: -6px;
-  cursor: pointer;
-}
+  .blog-content ul,
+  .blog-content ol {
+    @apply mb-4 ml-6;
+  }
 
-/* Light theme - Firefox */
-input[type="range"]::-moz-range-track {
-  background: #374151 !important;
-  height: 8px;
-  border-radius: 4px;
-  border: none;
-}
+  .blog-content li {
+    @apply mb-2;
+  }
 
-input[type="range"]::-moz-range-thumb {
-  background: #1F6AE1 !important;
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  border: 2px solid #F5F7FA !important;
-  cursor: pointer;
-}
+  .blog-content a {
+    @apply text-brand-blue dark:text-brand-blue-light hover:underline;
+  }
 
-/* Dark theme - WebKit browsers */
-html.dark input[type="range"]::-webkit-slider-runnable-track {
-  background: #6B7280 !important;
-}
+  .blog-content img {
+    @apply rounded-lg my-6;
+  }
 
-html.dark input[type="range"]::-webkit-slider-thumb {
-  background: #4A8AED !important;
-  border-color: #0B1C2D !important;
-}
+  .blog-content blockquote {
+    @apply border-l-4 border-brand-blue dark:border-brand-blue-light pl-4 italic my-4;
+  }
 
-/* Dark theme - Firefox */
-html.dark input[type="range"]::-moz-range-track {
-  background: #6B7280 !important;
-}
+  .blog-content code {
+    @apply bg-brand-gray/10 dark:bg-brand-navy/50 px-2 py-1 rounded text-sm;
+  }
 
-html.dark input[type="range"]::-moz-range-thumb {
-  background: #4A8AED !important;
-  border-color: #0B1C2D !important;
-}
+  .blog-content pre {
+    @apply bg-brand-gray/10 dark:bg-brand-navy/50 p-4 rounded-lg overflow-x-auto my-4;
+  }
 
-/* Focus states */
-input[type="range"]:focus {
-  outline: none;
-}
-
-input[type="range"]:focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px rgba(31, 106, 225, 0.2);
-}
-
-html.dark input[type="range"]:focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px rgba(74, 138, 237, 0.2);
+  .blog-content pre code {
+    @apply bg-transparent p-0;
+  }
 }

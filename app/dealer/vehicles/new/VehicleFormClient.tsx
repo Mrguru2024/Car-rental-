@@ -265,52 +265,6 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
             year={formData.year}
             required
             className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="e.g., Camry"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="year" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
-            Year <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="year"
-            type="number"
-            name="year"
-            value={formData.year}
-            onChange={handleInputChange}
-            required
-            min="1900"
-            max={new Date().getFullYear() + 1}
-            className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="price_per_day" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
-            Price per Day ($) <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="price_per_day"
-            type="number"
-            name="price_per_day"
-            value={formData.price_per_day}
-            onChange={handleInputChange}
-            required
-            min="0"
-            step="0.01"
-            className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white"
-          />
-        </div>
-
-        <AddressInput
-          id="location"
-          name="location"
-          value={formData.location}
-          onChange={(value) => setFormData((prev) => ({ ...prev, location: value }))}
-          placeholder="e.g., Los Angeles, CA"
-          required
-          label="Location"
         />
 
         <div>

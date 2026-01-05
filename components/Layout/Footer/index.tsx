@@ -73,8 +73,18 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/list-your-vehicle" className="text-brand-white/70 hover:text-brand-blue-light transition-colors">
+                  List Your Vehicle
+                </Link>
+              </li>
+              <li>
                 <Link href="/auth" className="text-brand-white/70 hover:text-brand-blue-light transition-colors">
                   Sign In
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="text-brand-white/70 hover:text-brand-blue-light transition-colors">
+                  Blog
                 </Link>
               </li>
             </ul>

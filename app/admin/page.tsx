@@ -295,7 +295,18 @@ export default async function AdminDashboardPage() {
           </div>
         ) : (
           // Prime Admin & Super Admin - Full Access
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${profile?.role === 'super_admin' ? 'lg:grid-cols-6' : 'lg:grid-cols-5'} gap-4 mb-8`}>
+            <Link
+              href="/admin/blog"
+              className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+            >
+              <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-2">
+                Blog Management
+              </h3>
+              <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                Create and manage blog posts for SEO
+              </p>
+            </Link>
             <Link
               href="/admin/byoi"
               className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
@@ -376,22 +387,40 @@ export default async function AdminDashboardPage() {
             </Link>
 
             {profile?.role === 'super_admin' && (
-              <Link
-                href="/admin/admins"
-                className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border-2 border-purple-200 dark:border-purple-800/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
-                    Admin Management
-                  </h3>
-                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-xs font-semibold rounded-full">
-                    Super Admin
-                  </span>
-                </div>
-                <p className="text-sm text-brand-gray dark:text-brand-white/70">
-                  Create and manage admin users
-                </p>
-              </Link>
+              <>
+                <Link
+                  href="/admin/users"
+                  className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border-2 border-purple-200 dark:border-purple-800/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                      User Management
+                    </h3>
+                    <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-xs font-semibold rounded-full">
+                      Super Admin
+                    </span>
+                  </div>
+                  <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                    Manage all users with support & troubleshooting tools
+                  </p>
+                </Link>
+                <Link
+                  href="/admin/admins"
+                  className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border-2 border-purple-200 dark:border-purple-800/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-shadow"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white">
+                      Admin Management
+                    </h3>
+                    <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-xs font-semibold rounded-full">
+                      Super Admin
+                    </span>
+                  </div>
+                  <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                    Create and manage admin users
+                  </p>
+                </Link>
+              </>
             )}
 
             {(profile?.role === 'prime_admin' || profile?.role === 'super_admin') && (
