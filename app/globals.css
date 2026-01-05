@@ -57,7 +57,15 @@
   }
 
   .blog-content img {
-    @apply rounded-lg my-6;
+    @apply rounded-lg my-6 shadow-lg;
+  }
+
+  /* Grid pattern for hero sections */
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 
   .blog-content blockquote {

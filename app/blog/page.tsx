@@ -3,8 +3,8 @@ import Footer from '@/components/Layout/Footer'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
-import { formatDate } from '@/lib/utils/format'
+import BlogCard from '@/components/Blog/BlogCard'
+import BlogSearchBar from '@/components/Blog/SearchBar'
 
 export const metadata: Metadata = {
   title: 'Blog',
@@ -164,15 +164,25 @@ export default async function BlogPage({
       <Header />
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-brand-blue/10 via-brand-green/10 to-brand-blue/10 dark:from-brand-blue/20 dark:via-brand-green/20 dark:to-brand-blue/20 py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative bg-gradient-to-br from-brand-blue/10 via-brand-green/10 to-brand-blue/10 dark:from-brand-blue/20 dark:via-brand-green/20 dark:to-brand-blue/20 py-16 md:py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-white dark:from-brand-navy via-transparent to-transparent" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-brand-navy dark:text-brand-white mb-6">
+            <div className="inline-block mb-4">
+              <span className="px-4 py-2 bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue dark:text-brand-blue-light text-sm font-semibold rounded-full">
+                Latest Articles
+              </span>
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-brand-navy dark:text-brand-white mb-6 bg-gradient-to-r from-brand-navy to-brand-blue dark:from-brand-white dark:to-brand-blue-light bg-clip-text text-transparent">
               Carsera Blog
             </h1>
-            <p className="text-xl md:text-2xl text-brand-gray dark:text-brand-white/70 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-brand-gray dark:text-brand-white/70 max-w-3xl mx-auto mb-8">
               Expert tips, travel guides, and insights to help you get the most out of car rentals
             </p>
+            <div className="max-w-2xl mx-auto">
+              <BlogSearchBar />
+            </div>
           </div>
         </div>
       </div>
@@ -248,112 +258,59 @@ export default async function BlogPage({
 
           {/* Main Content */}
           <main className="lg:col-span-3">
-            {/* Search Bar */}
-            <form method="GET" action="/blog" className="mb-8">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  name="search"
-                  defaultValue={search}
-                  placeholder="Search blog posts..."
-                  className="flex-1 px-4 py-3 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-brand-blue dark:bg-brand-blue-light text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
-                >
-                  Search
-                </button>
-                {search && (
-                  <Link
-                    href="/blog"
-                    className="px-4 py-3 bg-brand-gray/10 dark:bg-brand-navy/50 text-brand-navy dark:text-brand-white rounded-lg hover:bg-brand-gray/20 dark:hover:bg-brand-navy/70 transition-colors"
-                  >
-                    Clear
-                  </Link>
-                )}
-              </div>
-            </form>
-
             {/* Blog Posts Grid */}
             {postsWithTags.length === 0 ? (
               <div className="text-center py-16">
+                <div className="inline-block p-4 bg-brand-gray/10 dark:bg-brand-navy/50 rounded-full mb-4">
+                  <svg
+                    className="w-12 h-12 text-brand-gray dark:text-brand-white/50"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
                 <p className="text-xl text-brand-gray dark:text-brand-white/70 mb-4">
                   No blog posts found
                 </p>
-                <Link
-                  href="/blog"
-                  className="text-brand-blue dark:text-brand-blue-light hover:underline"
-                >
-                  View all posts
-                </Link>
+                {search && (
+                  <Link
+                    href="/blog"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-brand-blue dark:bg-brand-blue-light text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+                  >
+                    Clear search and view all posts
+                  </Link>
+                )}
               </div>
             ) : (
               <>
+                {search && (
+                  <div className="mb-6 p-4 bg-brand-blue/5 dark:bg-brand-blue/10 rounded-xl border border-brand-blue/20 dark:border-brand-blue/30">
+                    <p className="text-sm text-brand-navy dark:text-brand-white">
+                      Found <span className="font-semibold">{postsWithTags.length}</span> result{postsWithTags.length !== 1 ? 's' : ''} for "{search}"
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   {postsWithTags.map((post: any, index: number) => (
-                    <article
+                    <BlogCard
                       key={post.id}
-                      className={`bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 overflow-hidden border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-all ${
-                        index === 0 ? 'md:col-span-2' : ''
-                      }`}
-                    >
-                      <Link href={`/blog/${post.slug}`} className="block">
-                        {post.featured_image_url && (
-                          <div className={`relative ${index === 0 ? 'h-64' : 'h-48'} w-full overflow-hidden`}>
-                            <Image
-                              src={post.featured_image_url}
-                              alt={post.title}
-                              fill
-                              className="object-cover hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                        )}
-                        <div className="p-6">
-                          {post.blog_categories && (
-                            <span className="inline-block px-3 py-1 bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue dark:text-brand-blue-light text-sm font-medium rounded-full mb-3">
-                              {post.blog_categories.name}
-                            </span>
-                          )}
-                          <h2 className={`font-bold text-brand-navy dark:text-brand-white mb-3 hover:text-brand-blue dark:hover:text-brand-blue-light transition-colors ${
-                            index === 0 ? 'text-2xl md:text-3xl' : 'text-xl'
-                          }`}>
-                            {post.title}
-                          </h2>
-                          <p className="text-brand-gray dark:text-brand-white/70 mb-4 line-clamp-3">
-                            {post.excerpt}
-                          </p>
-                          <div className="flex items-center justify-between text-sm text-brand-gray dark:text-brand-white/50">
-                            <div className="flex items-center gap-4">
-                              {post.published_at && (
-                                <span>{formatDate(new Date(post.published_at))}</span>
-                              )}
-                              {post.reading_time_minutes && (
-                                <span>{post.reading_time_minutes} min read</span>
-                              )}
-                            </div>
-                            {post.tags && post.tags.length > 0 && (
-                              <div className="flex gap-2 flex-wrap">
-                                {post.tags.slice(0, 2).map((tag: any) => (
-                                  <span
-                                    key={tag.id}
-                                    className="px-2 py-1 bg-brand-gray/10 dark:bg-brand-navy/50 rounded text-xs"
-                                  >
-                                    {tag.name}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    </article>
+                      post={post}
+                      featured={index === 0}
+                      index={index}
+                    />
                   ))}
                 </div>
 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2 mt-8">
+                  <div className="flex justify-center items-center gap-3 mt-12">
                     {parseInt(page) > 1 && (
                       <Link
                         href={`/blog?${new URLSearchParams({
@@ -362,14 +319,56 @@ export default async function BlogPage({
                           ...(search && { search }),
                           page: (parseInt(page) - 1).toString(),
                         })}`}
-                        className="px-4 py-2 bg-white dark:bg-brand-navy-light border border-brand-gray/20 dark:border-brand-navy/50 text-brand-navy dark:text-brand-white rounded-lg hover:bg-brand-gray/10 dark:hover:bg-brand-navy/70 transition-colors"
+                        className="group px-6 py-3 bg-white dark:bg-brand-navy-light border-2 border-brand-gray/20 dark:border-brand-navy/50 text-brand-navy dark:text-brand-white rounded-xl hover:border-brand-blue dark:hover:border-brand-blue-light hover:bg-brand-blue/5 dark:hover:bg-brand-blue/10 transition-all duration-300 font-medium flex items-center gap-2"
                       >
+                        <svg
+                          className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform duration-300"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 19l-7-7 7-7"
+                          />
+                        </svg>
                         Previous
                       </Link>
                     )}
-                    <span className="px-4 py-2 text-brand-gray dark:text-brand-white/70">
-                      Page {page} of {pagination.totalPages}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                        let pageNum: number
+                        if (pagination.totalPages <= 5) {
+                          pageNum = i + 1
+                        } else if (parseInt(page) <= 3) {
+                          pageNum = i + 1
+                        } else if (parseInt(page) >= pagination.totalPages - 2) {
+                          pageNum = pagination.totalPages - 4 + i
+                        } else {
+                          pageNum = parseInt(page) - 2 + i
+                        }
+                        return (
+                          <Link
+                            key={pageNum}
+                            href={`/blog?${new URLSearchParams({
+                              ...(category && { category }),
+                              ...(tag && { tag }),
+                              ...(search && { search }),
+                              page: pageNum.toString(),
+                            })}`}
+                            className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                              parseInt(page) === pageNum
+                                ? 'bg-brand-blue dark:bg-brand-blue-light text-white shadow-lg scale-110'
+                                : 'bg-white dark:bg-brand-navy-light border border-brand-gray/20 dark:border-brand-navy/50 text-brand-navy dark:text-brand-white hover:border-brand-blue dark:hover:border-brand-blue-light hover:bg-brand-blue/5 dark:hover:bg-brand-blue/10'
+                            }`}
+                          >
+                            {pageNum}
+                          </Link>
+                        )
+                      })}
+                    </div>
                     {parseInt(page) < pagination.totalPages && (
                       <Link
                         href={`/blog?${new URLSearchParams({
@@ -378,9 +377,22 @@ export default async function BlogPage({
                           ...(search && { search }),
                           page: (parseInt(page) + 1).toString(),
                         })}`}
-                        className="px-4 py-2 bg-white dark:bg-brand-navy-light border border-brand-gray/20 dark:border-brand-navy/50 text-brand-navy dark:text-brand-white rounded-lg hover:bg-brand-gray/10 dark:hover:bg-brand-navy/70 transition-colors"
+                        className="group px-6 py-3 bg-white dark:bg-brand-navy-light border-2 border-brand-gray/20 dark:border-brand-navy/50 text-brand-navy dark:text-brand-white rounded-xl hover:border-brand-blue dark:hover:border-brand-blue-light hover:bg-brand-blue/5 dark:hover:bg-brand-blue/10 transition-all duration-300 font-medium flex items-center gap-2"
                       >
                         Next
+                        <svg
+                          className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
                       </Link>
                     )}
                   </div>

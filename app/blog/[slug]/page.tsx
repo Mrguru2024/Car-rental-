@@ -6,6 +6,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { formatDate, formatDateLong } from '@/lib/utils/format'
 import { notFound } from 'next/navigation'
+import ReadingProgress from '@/components/Blog/ReadingProgress'
+import BlogCard from '@/components/Blog/BlogCard'
 
 export async function generateMetadata({
   params,
@@ -157,6 +159,7 @@ export default async function BlogPostPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="min-h-screen bg-brand-white dark:bg-brand-navy text-brand-navy dark:text-brand-white">
+        <ReadingProgress />
         <Header />
 
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -225,12 +228,13 @@ export default async function BlogPostPage({
 
           {/* Featured Image */}
           {post.featured_image_url && (
-            <div className="relative w-full h-64 md:h-96 mb-8 rounded-xl overflow-hidden">
+            <div className="relative w-full h-64 md:h-96 mb-8 rounded-2xl overflow-hidden shadow-2xl group">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10" />
               <Image
                 src={post.featured_image_url}
                 alt={post.title}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
                 priority
               />
             </div>
@@ -244,82 +248,83 @@ export default async function BlogPostPage({
 
           {/* Share Buttons */}
           <div className="border-t border-brand-gray/20 dark:border-brand-navy/50 pt-8 mb-12">
-            <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-4">
+            <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white mb-6">
               Share this post
             </h3>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-3">
               <a
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/blog/${post.slug}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+                className="group px-6 py-3 bg-[#1DA1F2] text-white rounded-xl hover:bg-[#1a8cd8] transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                 </svg>
-                Twitter
+                <span className="font-medium">Twitter</span>
               </a>
               <a
                 href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/blog/${post.slug}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="group px-6 py-3 bg-[#1877F2] text-white rounded-xl hover:bg-[#166fe5] transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
-                Facebook
+                <span className="font-medium">Facebook</span>
               </a>
               <a
                 href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors flex items-center gap-2"
+                className="group px-6 py-3 bg-[#0A66C2] text-white rounded-xl hover:bg-[#095195] transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
-                LinkedIn
+                <span className="font-medium">LinkedIn</span>
               </a>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/blog/${post.slug}`)
+                  // You could add a toast notification here
+                }}
+                className="group px-6 py-3 bg-brand-gray/10 dark:bg-brand-navy/50 text-brand-navy dark:text-brand-white rounded-xl hover:bg-brand-gray/20 dark:hover:bg-brand-navy/70 transition-all duration-300 flex items-center gap-2 border border-brand-gray/20 dark:border-brand-navy/50 hover:border-brand-blue dark:hover:border-brand-blue-light"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span className="font-medium">Copy Link</span>
+              </button>
             </div>
           </div>
 
           {/* Related Posts */}
           {relatedPosts && relatedPosts.length > 0 && (
-            <div className="border-t border-brand-gray/20 dark:border-brand-navy/50 pt-8">
-              <h3 className="text-2xl font-bold text-brand-navy dark:text-brand-white mb-6">
-                Related Posts
-              </h3>
+            <div className="border-t border-brand-gray/20 dark:border-brand-navy/50 pt-12">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-brand-gray/20 dark:via-brand-navy/50 to-transparent" />
+                <h3 className="text-2xl font-bold text-brand-navy dark:text-brand-white">
+                  Related Posts
+                </h3>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-brand-gray/20 dark:via-brand-navy/50 to-transparent" />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedPosts.map((relatedPost: any) => (
-                  <Link
+                {relatedPosts.map((relatedPost: any, index: number) => (
+                  <BlogCard
                     key={relatedPost.id}
-                    href={`/blog/${relatedPost.slug}`}
-                    className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 overflow-hidden border border-brand-white dark:border-brand-navy/50 hover:shadow-lg dark:hover:shadow-brand-navy/50 transition-all"
-                  >
-                    {relatedPost.featured_image_url && (
-                      <div className="relative h-40 w-full overflow-hidden">
-                        <Image
-                          src={relatedPost.featured_image_url}
-                          alt={relatedPost.title}
-                          fill
-                          className="object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <h4 className="font-semibold text-brand-navy dark:text-brand-white mb-2 line-clamp-2 hover:text-brand-blue dark:hover:text-brand-blue-light transition-colors">
-                        {relatedPost.title}
-                      </h4>
-                      <p className="text-sm text-brand-gray dark:text-brand-white/70 line-clamp-2 mb-3">
-                        {relatedPost.excerpt}
-                      </p>
-                      <div className="text-xs text-brand-gray dark:text-brand-white/50">
-                        {relatedPost.published_at && formatDate(new Date(relatedPost.published_at))}
-                        {relatedPost.reading_time_minutes && ` · ${relatedPost.reading_time_minutes} min read`}
-                      </div>
-                    </div>
-                  </Link>
+                    post={{
+                      ...relatedPost,
+                      blog_categories: post.blog_categories
+                        ? {
+                            name: (post.blog_categories as any).name,
+                            slug: (post.blog_categories as any).slug,
+                          }
+                        : null,
+                    }}
+                    index={index}
+                  />
                 ))}
               </div>
             </div>
@@ -329,9 +334,14 @@ export default async function BlogPostPage({
           <div className="mt-12 text-center">
             <Link
               href="/blog"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-brand-blue dark:bg-brand-blue-light text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+              className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-blue to-brand-green dark:from-brand-blue-light dark:to-brand-green text-white rounded-xl hover:shadow-lg hover:shadow-brand-blue/30 transition-all duration-300 font-medium hover:scale-105"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform duration-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Back to Blog

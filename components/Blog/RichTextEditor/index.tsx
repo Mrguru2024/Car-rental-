@@ -1,11 +1,9 @@
 'use client'
 
-import { useRef, useEffect, useMemo, useCallback } from 'react'
-import dynamic from 'next/dynamic'
+import { useEffect, useMemo, useCallback, useState } from 'react'
 import 'react-quill/dist/quill.snow.css'
-
-// Dynamically import ReactQuill to avoid SSR issues
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
+import ReactQuillWrapper from './ReactQuillWrapper'
+import { ErrorBoundary } from './ErrorBoundary'
 
 interface RichTextEditorProps {
   value: string
@@ -20,7 +18,44 @@ export default function RichTextEditor({
   placeholder = 'Write your content here...',
   className = '',
 }: RichTextEditorProps) {
-  const quillRef = useRef<any>(null)
+  const [mounted, setMounted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Only render on client side to avoid SSR issues
+    setMounted(true)
+    
+    // Suppress findDOMNode warnings (known issue with react-quill v2.0.0 and React 18)
+    // This is a deprecation warning but doesn't break functionality
+    const originalWarn = console.warn
+    const originalError = console.error
+    
+    const suppressWarnings = (args: any[]) => {
+      const message = typeof args[0] === 'string' ? args[0] : String(args[0] || '')
+      return (
+        message.includes('findDOMNode') || 
+        message.includes('deprecated') ||
+        message.includes('feature_collector') ||
+        message.includes('using deprecated parameters') ||
+        message.includes('u.default.findDOMNode')
+      )
+    }
+    
+    console.warn = (...args: any[]) => {
+      if (suppressWarnings(args)) return
+      originalWarn.apply(console, args)
+    }
+    
+    console.error = (...args: any[]) => {
+      if (suppressWarnings(args)) return
+      originalError.apply(console, args)
+    }
+
+    return () => {
+      console.warn = originalWarn
+      console.error = originalError
+    }
+  }, [])
 
   const imageHandler = useCallback(async () => {
     const input = document.createElement('input')
@@ -65,13 +100,29 @@ export default function RichTextEditor({
           data: { publicUrl },
         } = supabase.storage.from('blog-images').getPublicUrl(filePath)
 
-        // Insert image into editor - find Quill instance from DOM
+        // Insert image into editor
+        // Find Quill instance from DOM (react-quill stores it on the container)
+        let quill = null
         const quillContainer = document.querySelector('.rich-text-editor .quill') as any
-        const quill = quillContainer?.__quill
-        if (quill) {
-          const range = quill.getSelection(true)
-          quill.insertEmbed(range.index, 'image', publicUrl)
-          quill.setSelection(range.index + 1)
+        
+        if (quillContainer) {
+          // Try different ways to access the Quill instance
+          quill = quillContainer.__quill || 
+                  quillContainer.quill ||
+                  (quillContainer.querySelector('.ql-editor') as any)?.__quill ||
+                  (quillContainer.querySelector('.ql-editor') as any)?.quill
+        }
+
+        if (quill && typeof quill.getSelection === 'function') {
+          try {
+            const range = quill.getSelection(true) || { index: quill.getLength() }
+            quill.insertEmbed(range.index, 'image', publicUrl)
+            quill.setSelection(range.index + 1)
+          } catch (e) {
+            // Fallback if insertion fails
+            const imageHtml = `<p><img src="${publicUrl}" alt="Uploaded image" /></p>`
+            onChange(value + imageHtml)
+          }
         } else {
           // Fallback: append image to content
           const imageHtml = `<p><img src="${publicUrl}" alt="Uploaded image" /></p>`
@@ -183,14 +234,53 @@ export default function RichTextEditor({
           color: rgb(203, 213, 225);
         }
       `}</style>
-      <ReactQuill
-        theme="snow"
-        value={value}
-        onChange={onChange}
-        modules={modules}
-        formats={formats}
-        placeholder={placeholder}
-      />
+      {error ? (
+        <div className="min-h-[400px] border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center justify-center">
+          <div className="text-red-600 dark:text-red-400">
+            <p className="font-medium mb-2">Editor failed to load</p>
+            <p className="text-sm">{error}</p>
+            <button
+              onClick={() => {
+                setError(null)
+                setMounted(false)
+                setTimeout(() => setMounted(true), 100)
+              }}
+              className="mt-4 px-4 py-2 bg-brand-blue text-white rounded-lg hover:opacity-90"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      ) : mounted ? (
+        <ErrorBoundary
+          fallback={
+            <div className="min-h-[400px]">
+              <textarea
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={placeholder}
+                className="w-full h-full min-h-[400px] px-4 py-3 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light resize-none"
+              />
+              <p className="mt-2 text-xs text-brand-gray dark:text-brand-white/50">
+                Note: Rich text editor unavailable. Using plain text editor. You can use HTML tags for formatting.
+              </p>
+            </div>
+          }
+        >
+          <ReactQuillWrapper
+            theme="snow"
+            value={value}
+            onChange={onChange}
+            modules={modules}
+            formats={formats}
+            placeholder={placeholder}
+          />
+        </ErrorBoundary>
+      ) : (
+        <div className="min-h-[400px] border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex items-center justify-center">
+          <div className="text-brand-gray dark:text-brand-white/70">Loading editor...</div>
+        </div>
+      )}
     </div>
   )
 }
