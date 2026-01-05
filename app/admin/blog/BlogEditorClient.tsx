@@ -44,7 +44,7 @@ interface BlogEditorClientProps {
 export default function BlogEditorClient({
   postId,
   initialData,
-  categories,
+  categories: initialCategories,
   tags: initialTags,
 }: BlogEditorClientProps) {
   const router = useRouter()
@@ -75,6 +75,11 @@ export default function BlogEditorClient({
   const [tags, setTags] = useState(initialTags)
   const [newTagName, setNewTagName] = useState('')
   const [creatingTag, setCreatingTag] = useState(false)
+  const [categories, setCategories] = useState(initialCategories)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [newCategoryDescription, setNewCategoryDescription] = useState('')
+  const [creatingCategory, setCreatingCategory] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   // Suggestions state
   const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([])
@@ -207,6 +212,88 @@ export default function BlogEditorClient({
       showToast(error.message || 'Failed to create tag', 'error')
     } finally {
       setCreatingTag(false)
+    }
+  }
+
+  // Create new category
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return
+
+    setCreatingCategory(true)
+    try {
+      const response = await fetch('/api/blog/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newCategoryName.trim(),
+          description: newCategoryDescription.trim() || null,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to create category')
+      }
+
+      const data = await response.json()
+      setCategories([...categories, data.data])
+      setCategoryId(data.data.id)
+      setNewCategoryName('')
+      setNewCategoryDescription('')
+      showToast('Category created successfully', 'success')
+    } catch (error: any) {
+      showToast(error.message || 'Failed to create category', 'error')
+    } finally {
+      setCreatingCategory(false)
+    }
+  }
+
+  // Upload image to Supabase storage
+  const handleImageUpload = async (file: File, type: 'featured' | 'og') => {
+    setUploadingImage(true)
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        throw new Error('Not authenticated')
+      }
+
+      const timestamp = Date.now()
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}/blog/${timestamp}.${fileExt}`
+      const filePath = `blog-images/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        })
+
+      if (uploadError) {
+        throw uploadError
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('blog-images').getPublicUrl(filePath)
+
+      if (type === 'featured') {
+        setFeaturedImageUrl(publicUrl)
+      } else {
+        setOgImageUrl(publicUrl)
+      }
+
+      showToast('Image uploaded successfully', 'success')
+    } catch (error: any) {
+      showToast(error.message || 'Failed to upload image', 'error')
+    } finally {
+      setUploadingImage(false)
     }
   }
 
@@ -367,24 +454,57 @@ export default function BlogEditorClient({
 
           {/* Content Editor */}
           <div>
-            <label className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
-              Content <span className="text-red-500">*</span>
-            </label>
-            <RichTextEditor value={content} onChange={setContent} />
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-brand-navy dark:text-brand-white">
+                Content <span className="text-red-500">*</span>
+              </label>
+              <button
+                onClick={() => setShowPreview(!showPreview)}
+                className="px-3 py-1 text-sm border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg hover:bg-brand-gray/5 dark:hover:bg-brand-navy/30 transition-colors"
+              >
+                {showPreview ? 'Edit' : 'Preview'}
+              </button>
+            </div>
+            {showPreview ? (
+              <div className="min-h-[400px] p-6 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy prose prose-lg dark:prose-invert max-w-none">
+                <h1>{title || 'Untitled'}</h1>
+                {featuredImageUrl && (
+                  <img src={featuredImageUrl} alt={title} className="w-full rounded-lg" />
+                )}
+                <div dangerouslySetInnerHTML={{ __html: content }} />
+              </div>
+            ) : (
+              <RichTextEditor value={content} onChange={setContent} />
+            )}
           </div>
 
           {/* Featured Image */}
           <div>
             <label className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
-              Featured Image URL
+              Featured Image
             </label>
-            <input
-              type="url"
-              value={featuredImageUrl}
-              onChange={(e) => setFeaturedImageUrl(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-3 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light"
-            />
+            <div className="space-y-3">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    handleImageUpload(file, 'featured')
+                  }
+                }}
+                disabled={uploadingImage}
+                className="w-full px-4 py-3 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light disabled:opacity-50"
+              />
+              <div className="text-sm text-brand-gray dark:text-brand-white/70">OR</div>
+              <input
+                type="url"
+                value={featuredImageUrl}
+                onChange={(e) => setFeaturedImageUrl(e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="w-full px-4 py-3 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light"
+              />
+            </div>
             {featuredImageUrl && (
               <img
                 src={featuredImageUrl}
@@ -424,7 +544,7 @@ export default function BlogEditorClient({
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full px-4 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light"
+              className="w-full px-4 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light mb-3"
             >
               <option value="">Select a category</option>
               {categories.map((cat) => (
@@ -433,6 +553,35 @@ export default function BlogEditorClient({
                 </option>
               ))}
             </select>
+            <div className="space-y-2 pt-3 border-t border-brand-gray/20 dark:border-brand-navy/50">
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleCreateCategory()
+                  }
+                }}
+                placeholder="Create new category"
+                className="w-full px-3 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light text-sm"
+              />
+              <textarea
+                value={newCategoryDescription}
+                onChange={(e) => setNewCategoryDescription(e.target.value)}
+                placeholder="Description (optional)"
+                rows={2}
+                className="w-full px-3 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light text-sm resize-none"
+              />
+              <button
+                onClick={handleCreateCategory}
+                disabled={creatingCategory || !newCategoryName.trim()}
+                className="w-full px-3 py-2 bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green-light rounded-lg hover:bg-brand-green/20 dark:hover:bg-brand-green/30 transition-colors disabled:opacity-50 text-sm"
+              >
+                {creatingCategory ? 'Creating...' : 'Create Category'}
+              </button>
+            </div>
           </div>
 
           {/* Tags */}
@@ -590,15 +739,30 @@ export default function BlogEditorClient({
               </div>
               <div>
                 <label className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">
-                  OG Image URL
+                  OG Image (Social Sharing)
                 </label>
-                <input
-                  type="url"
-                  value={ogImageUrl}
-                  onChange={(e) => setOgImageUrl(e.target.value)}
-                  placeholder="Social sharing image URL"
-                  className="w-full px-3 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light text-sm"
-                />
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        handleImageUpload(file, 'og')
+                      }
+                    }}
+                    disabled={uploadingImage}
+                    className="w-full px-3 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light text-sm disabled:opacity-50"
+                  />
+                  <div className="text-xs text-brand-gray dark:text-brand-white/70 text-center">OR</div>
+                  <input
+                    type="url"
+                    value={ogImageUrl}
+                    onChange={(e) => setOgImageUrl(e.target.value)}
+                    placeholder="Social sharing image URL"
+                    className="w-full px-3 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light text-sm"
+                  />
+                </div>
               </div>
             </div>
           </div>

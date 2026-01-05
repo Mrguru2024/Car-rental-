@@ -467,7 +467,7 @@ export default function SuperAdminUsersClient({
           onSuspend={handleSuspend}
           onUnsuspend={handleUnsuspend}
           onResetPassword={handleResetPassword}
-          onTroubleshoot={(action) => {
+          onTroubleshoot={() => {
             setShowTroubleshootModal(true)
           }}
           showTroubleshootModal={showTroubleshootModal}

@@ -17,7 +17,7 @@ export async function generateMetadata({
 
   const { data: post } = await supabase
     .from('blog_posts')
-    .select('title, excerpt, meta_title, meta_description, meta_keywords, og_image_url, featured_image_url')
+    .select('title, excerpt, meta_title, meta_description, meta_keywords, og_image_url, featured_image_url, published_at, profiles!blog_posts_author_id_fkey(full_name)')
     .eq('slug', slug)
     .eq('status', 'published')
     .single()
@@ -41,7 +41,9 @@ export async function generateMetadata({
       description,
       type: 'article',
       publishedTime: post.published_at,
-      authors: post.profiles?.full_name ? [post.profiles.full_name] : undefined,
+      authors: Array.isArray(post.profiles) && post.profiles[0]?.full_name 
+        ? [post.profiles[0].full_name] 
+        : undefined,
       images: ogImage ? [{ url: ogImage }] : undefined,
       siteName: 'Carsera',
     },
@@ -60,6 +62,7 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  const supabase = await createClient()
 
   // Fetch post directly from database
   const { data: post, error } = await supabase

@@ -53,7 +53,7 @@ export async function POST(
     // Get profile
     const { data: profile } = await adminSupabase
       .from('profiles')
-      .select('user_id, id')
+      .select('user_id, id, verification_status, stripe_connect_account_id')
       .eq('id', id)
       .single()
 

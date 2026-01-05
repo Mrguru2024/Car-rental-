@@ -49,7 +49,21 @@ export default async function BlogManagementPage() {
 
   // Get tags for each post
   const postIds = posts?.map(p => p.id) || []
-  let postsWithTags = posts || []
+  let postsWithTags: Array<{
+    id: string
+    title: string
+    slug: string
+    excerpt: string
+    status: 'draft' | 'published' | 'archived'
+    published_at: string | null
+    created_at: string
+    updated_at: string
+    view_count: number
+    reading_time_minutes: number | null
+    blog_categories: { id: string; name: string; slug: string } | null
+    profiles: { id: string; full_name: string | null } | null
+    tags: Array<{ id: string; name: string; slug: string }>
+  }> = []
 
   if (postIds.length > 0) {
     const { data: postTags } = await supabase
@@ -68,10 +82,25 @@ export default async function BlogManagementPage() {
       tagsByPostId.get(pt.post_id)?.push(pt.blog_tags)
     })
 
-    postsWithTags = posts?.map(post => ({
-      ...post,
+    postsWithTags = (posts || []).map((post: any) => ({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      status: post.status as 'draft' | 'published' | 'archived',
+      published_at: post.published_at,
+      created_at: post.created_at,
+      updated_at: post.updated_at,
+      view_count: post.view_count,
+      reading_time_minutes: post.reading_time_minutes,
+      blog_categories: Array.isArray(post.blog_categories) 
+        ? (post.blog_categories[0] || null)
+        : post.blog_categories,
+      profiles: Array.isArray(post.profiles)
+        ? (post.profiles[0] || null)
+        : post.profiles,
       tags: tagsByPostId.get(post.id) || [],
-    })) || []
+    }))
   }
 
   return (

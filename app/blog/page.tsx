@@ -100,7 +100,7 @@ export default async function BlogPage({
         .single()
 
       if (tagData) {
-        postsWithTags = postsWithTags.filter(post => {
+        postsWithTags = postsWithTags.filter((post: any) => {
           const postTagIds = (post.tags || []).map((t: any) => t.id)
           return postTagIds.includes(tagData.id)
         })

@@ -166,7 +166,10 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
 
       if (vehicleError) throw vehicleError
 
-      // Upload photos
+      // Handle photos: upload files and save Auto.dev URLs
+      const photoUrls: string[] = []
+
+      // Upload files from photos array
       if (photos.length > 0) {
         const {
           data: { user },
@@ -174,25 +177,28 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
         if (!user) throw new Error('Not authenticated')
 
         const timestamp = Date.now()
-        const photoUrls: string[] = []
 
         for (let i = 0; i < photos.length; i++) {
           const path = `${user.id}/vehicles/${vehicle.id}/${timestamp}-${i}.jpg`
           const url = await uploadFile(photos[i], path)
           photoUrls.push(url)
         }
+      }
 
-        // Create vehicle_photos records
-        if (photoUrls.length > 0) {
-          const { error: photosError } = await supabase.from('vehicle_photos').insert(
-            photoUrls.map((url) => ({
-              vehicle_id: vehicle.id,
-              file_path: url,
-            }))
-          )
+      // Add Auto.dev URLs from photoPreviews (URLs starting with http/https)
+      const autoDevUrls = photoPreviews.filter((preview) => preview.startsWith('http'))
+      photoUrls.push(...autoDevUrls)
 
-          if (photosError) throw photosError
-        }
+      // Create vehicle_photos records
+      if (photoUrls.length > 0) {
+        const { error: photosError } = await supabase.from('vehicle_photos').insert(
+          photoUrls.map((url) => ({
+            vehicle_id: vehicle.id,
+            file_path: url,
+          }))
+        )
+
+        if (photosError) throw photosError
       }
 
       showToast('Vehicle added successfully!', 'success')
@@ -265,7 +271,8 @@ export default function VehicleFormClient({ profileId }: VehicleFormClientProps)
             year={formData.year}
             required
             className="w-full px-4 py-2 border border-brand-gray dark:border-brand-navy rounded-lg focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light bg-white dark:bg-brand-navy-light text-brand-navy dark:text-brand-white disabled:opacity-50 disabled:cursor-not-allowed"
-        />
+          />
+        </div>
 
         <div>
           <label htmlFor="mileage_limit" className="block text-sm font-medium text-brand-navy dark:text-brand-white mb-2">

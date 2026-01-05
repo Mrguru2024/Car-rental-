@@ -60,7 +60,7 @@ export async function GET(request: Request) {
 
     // Get tags for each post
     const postIds = posts?.map(p => p.id) || []
-    let postsWithTags = posts || []
+    let postsWithTags: Array<any & { tags: Array<{ id: string; name: string; slug: string }> }> = []
 
     if (postIds.length > 0) {
       const { data: postTags } = await supabase
@@ -81,10 +81,10 @@ export async function GET(request: Request) {
       })
 
       // Add tags to posts
-      postsWithTags = posts?.map(post => ({
+      postsWithTags = (posts || []).map((post: any) => ({
         ...post,
         tags: tagsByPostId.get(post.id) || [],
-      })) || []
+      }))
 
       // Filter by tag if specified (after fetching posts)
       if (tag) {
@@ -95,12 +95,17 @@ export async function GET(request: Request) {
           .single()
 
         if (tagData) {
-          postsWithTags = postsWithTags.filter(post => {
+          postsWithTags = postsWithTags.filter((post: any) => {
             const postTagIds = (post.tags || []).map((t: any) => t.id)
             return postTagIds.includes(tagData.id)
           })
         }
       }
+    } else {
+      postsWithTags = (posts || []).map((post: any) => ({
+        ...post,
+        tags: [],
+      }))
     }
 
     return NextResponse.json({
