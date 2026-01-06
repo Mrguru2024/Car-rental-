@@ -92,9 +92,9 @@ export default function BlogSuggestions({
   }
 
   return (
-    <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-6 border border-brand-white dark:border-brand-navy/50">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-brand-navy dark:text-brand-white flex items-center gap-2">
+    <div className="bg-white dark:bg-brand-navy-light rounded-xl shadow-md dark:shadow-brand-navy/30 p-4 sm:p-5 lg:p-6 border border-brand-white dark:border-brand-navy/50">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 lg:mb-6">
+        <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-brand-navy dark:text-brand-white flex items-center gap-2">
           <svg
             className="w-5 h-5 text-brand-blue dark:text-brand-blue-light"
             fill="none"
@@ -113,7 +113,7 @@ export default function BlogSuggestions({
         <button
           onClick={() => fetchSuggestions('full')}
           disabled={loading}
-          className="px-3 py-1.5 text-sm bg-brand-blue dark:bg-brand-blue-light text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 lg:py-2.5 text-xs sm:text-sm lg:text-base bg-brand-blue dark:bg-brand-blue-light text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 touch-manipulation min-h-[44px] font-medium"
         >
           {loading ? (
             <>
@@ -135,18 +135,18 @@ export default function BlogSuggestions({
       </div>
 
       {/* Topic Input */}
-      <div className="mb-4">
+      <div className="mb-4 sm:mb-5 lg:mb-6">
         <input
           type="text"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           placeholder="Enter a topic or keyword to get suggestions..."
-          className="w-full px-4 py-2 border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light"
+          className="w-full px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 lg:py-3.5 text-sm sm:text-base lg:text-lg border border-brand-gray/20 dark:border-brand-navy/50 rounded-lg bg-white dark:bg-brand-navy text-brand-navy dark:text-brand-white focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue-light touch-manipulation"
         />
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-4 border-b border-brand-gray/20 dark:border-brand-navy/50">
+      <div className="flex gap-1 sm:gap-2 lg:gap-3 mb-4 sm:mb-5 lg:mb-6 border-b border-brand-gray/20 dark:border-brand-navy/50 overflow-x-auto scrollbar-hide">
         {(['titles', 'keywords', 'trending', 'outline'] as const).map((tab) => (
           <button
             key={tab}
@@ -157,7 +157,7 @@ export default function BlogSuggestions({
               else if (tab === 'trending') fetchSuggestions('trending')
               else if (tab === 'outline') fetchSuggestions('outline')
             }}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm lg:text-base font-medium transition-colors whitespace-nowrap touch-manipulation min-h-[44px] flex items-center ${
               activeTab === tab
                 ? 'border-b-2 border-brand-blue dark:border-brand-blue-light text-brand-blue dark:text-brand-blue-light'
                 : 'text-brand-gray dark:text-brand-white/70 hover:text-brand-navy dark:hover:text-brand-white'
@@ -184,18 +184,18 @@ export default function BlogSuggestions({
           <>
             {/* Titles */}
             {activeTab === 'titles' && suggestions.titles && (
-              <div className="space-y-2">
+              <div className="space-y-2 sm:space-y-3">
                 {suggestions.titles.map((title, index) => (
                   <button
                     key={index}
                     onClick={() => handleSelectTitle(title)}
-                    className="w-full text-left px-4 py-3 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 border border-brand-gray/10 dark:border-brand-navy/50 hover:border-brand-blue dark:hover:border-brand-blue-light transition-all duration-200 group"
+                    className="w-full text-left px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 lg:py-3.5 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 border border-brand-gray/10 dark:border-brand-navy/50 hover:border-brand-blue dark:hover:border-brand-blue-light transition-all duration-200 group touch-manipulation"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-brand-navy dark:text-brand-white group-hover:text-brand-blue dark:group-hover:text-brand-blue-light font-medium">
+                    <div className="flex items-center justify-between gap-2 sm:gap-3">
+                      <span className="text-sm sm:text-base lg:text-lg text-brand-navy dark:text-brand-white group-hover:text-brand-blue dark:group-hover:text-brand-blue-light font-medium">
                         {title}
                       </span>
-                      <svg className="w-5 h-5 text-brand-gray dark:text-brand-white/50 group-hover:text-brand-blue dark:group-hover:text-brand-blue-light opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-brand-gray dark:text-brand-white/50 group-hover:text-brand-blue dark:group-hover:text-brand-blue-light opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
                     </div>
@@ -206,13 +206,13 @@ export default function BlogSuggestions({
 
             {/* Keywords */}
             {activeTab === 'keywords' && suggestions.keywords && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 {suggestions.keywords.map((keyword, index) => (
                   <button
                     key={index}
                     onClick={() => handleSelectKeyword(keyword)}
                     disabled={currentKeywords.includes(keyword)}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                    className={`px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 lg:py-2.5 rounded-full text-xs sm:text-sm lg:text-base font-medium transition-all duration-200 touch-manipulation ${
                       currentKeywords.includes(keyword)
                         ? 'bg-brand-green/20 dark:bg-brand-green/30 text-brand-green dark:text-brand-green border border-brand-green/30'
                         : 'bg-brand-gray/10 dark:bg-brand-navy/50 text-brand-navy dark:text-brand-white hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 hover:border-brand-blue dark:hover:border-brand-blue-light border border-brand-gray/20 dark:border-brand-navy/50'
@@ -227,29 +227,29 @@ export default function BlogSuggestions({
 
             {/* Trending Topics */}
             {activeTab === 'trending' && suggestions.trendingTopics && (
-              <div className="space-y-3">
+              <div className="space-y-3 sm:space-y-4">
                 {suggestions.trendingTopics.map((trending, index) => (
                   <button
                     key={index}
                     onClick={() => handleSelectTrending(trending)}
-                    className="w-full text-left p-4 bg-gradient-to-r from-brand-blue/5 to-brand-green/5 dark:from-brand-blue/10 dark:to-brand-green/10 rounded-lg hover:from-brand-blue/10 hover:to-brand-green/10 dark:hover:from-brand-blue/20 dark:hover:to-brand-green/20 border border-brand-blue/20 dark:border-brand-blue/30 transition-all duration-200 group"
+                    className="w-full text-left p-3 sm:p-4 lg:p-5 bg-gradient-to-r from-brand-blue/5 to-brand-green/5 dark:from-brand-blue/10 dark:to-brand-green/10 rounded-lg hover:from-brand-blue/10 hover:to-brand-green/10 dark:hover:from-brand-blue/20 dark:hover:to-brand-green/20 border border-brand-blue/20 dark:border-brand-blue/30 transition-all duration-200 group touch-manipulation"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-brand-navy dark:text-brand-white mb-1 group-hover:text-brand-blue dark:group-hover:text-brand-blue-light">
+                    <div className="flex items-start justify-between gap-3 sm:gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm sm:text-base lg:text-lg font-semibold text-brand-navy dark:text-brand-white mb-1 sm:mb-2 group-hover:text-brand-blue dark:group-hover:text-brand-blue-light">
                           {trending.title}
                         </h4>
                         {trending.reason && (
-                          <p className="text-sm text-brand-gray dark:text-brand-white/70 mb-2">
+                          <p className="text-xs sm:text-sm lg:text-base text-brand-gray dark:text-brand-white/70 mb-2 sm:mb-3">
                             {trending.reason}
                           </p>
                         )}
                         {trending.keywords && trending.keywords.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-2">
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
                             {trending.keywords.slice(0, 3).map((kw, i) => (
                               <span
                                 key={i}
-                                className="px-2 py-0.5 bg-white/50 dark:bg-brand-navy/50 rounded text-xs text-brand-gray dark:text-brand-white/70"
+                                className="px-2 sm:px-2.5 lg:px-3 py-0.5 sm:py-1 bg-white/50 dark:bg-brand-navy/50 rounded text-xs sm:text-sm text-brand-gray dark:text-brand-white/70"
                               >
                                 {kw}
                               </span>
@@ -257,7 +257,7 @@ export default function BlogSuggestions({
                           </div>
                         )}
                       </div>
-                      <svg className="w-5 h-5 text-brand-gray dark:text-brand-white/50 group-hover:text-brand-blue dark:group-hover:text-brand-blue-light opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-brand-gray dark:text-brand-white/50 group-hover:text-brand-blue dark:group-hover:text-brand-blue-light opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
                     </div>
@@ -268,21 +268,21 @@ export default function BlogSuggestions({
 
             {/* Outline */}
             {activeTab === 'outline' && suggestions.outline && (
-              <div className="space-y-3">
+              <div className="space-y-3 sm:space-y-4">
                 {typeof suggestions.outline === 'object' ? (
                   Object.entries(suggestions.outline).map(([key, value], index) => (
-                    <div key={index} className="p-3 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg border border-brand-gray/10 dark:border-brand-navy/50">
-                      <h4 className="font-semibold text-brand-navy dark:text-brand-white mb-1 capitalize">
+                    <div key={index} className="p-3 sm:p-4 lg:p-5 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg border border-brand-gray/10 dark:border-brand-navy/50">
+                      <h4 className="text-sm sm:text-base lg:text-lg font-semibold text-brand-navy dark:text-brand-white mb-1 sm:mb-2 capitalize">
                         {key.replace(/([A-Z])/g, ' $1').trim()}
                       </h4>
-                      <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                      <p className="text-xs sm:text-sm lg:text-base text-brand-gray dark:text-brand-white/70">
                         {String(value)}
                       </p>
                     </div>
                   ))
                 ) : (
-                  <div className="p-4 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg border border-brand-gray/10 dark:border-brand-navy/50">
-                    <pre className="text-sm text-brand-navy dark:text-brand-white whitespace-pre-wrap">
+                  <div className="p-3 sm:p-4 lg:p-5 bg-brand-gray/5 dark:bg-brand-navy/30 rounded-lg border border-brand-gray/10 dark:border-brand-navy/50">
+                    <pre className="text-xs sm:text-sm lg:text-base text-brand-navy dark:text-brand-white whitespace-pre-wrap">
                       {String(suggestions.outline)}
                     </pre>
                   </div>
@@ -292,22 +292,22 @@ export default function BlogSuggestions({
 
             {/* Meta Description */}
             {suggestions.metaDescription && activeTab === 'titles' && (
-              <div className="mt-4 p-4 bg-brand-blue/5 dark:bg-brand-blue/10 rounded-lg border border-brand-blue/20 dark:border-brand-blue/30">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-brand-navy dark:text-brand-white">
+              <div className="mt-4 sm:mt-5 lg:mt-6 p-3 sm:p-4 lg:p-5 bg-brand-blue/5 dark:bg-brand-blue/10 rounded-lg border border-brand-blue/20 dark:border-brand-blue/30">
+                <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2">
+                  <h4 className="text-xs sm:text-sm lg:text-base font-semibold text-brand-navy dark:text-brand-white">
                     Suggested Meta Description
                   </h4>
                   <button
                     onClick={() => onSuggestionSelect?.('metaDescription', suggestions.metaDescription)}
-                    className="text-xs text-brand-blue dark:text-brand-blue-light hover:underline"
+                    className="text-xs sm:text-sm text-brand-blue dark:text-brand-blue-light hover:underline touch-manipulation whitespace-nowrap"
                   >
                     Use this
                   </button>
                 </div>
-                <p className="text-sm text-brand-gray dark:text-brand-white/70">
+                <p className="text-xs sm:text-sm lg:text-base text-brand-gray dark:text-brand-white/70">
                   {suggestions.metaDescription}
                 </p>
-                <p className="text-xs text-brand-gray dark:text-brand-white/50 mt-2">
+                <p className="text-xs sm:text-sm text-brand-gray dark:text-brand-white/50 mt-2 sm:mt-3">
                   {suggestions.metaDescription.length} characters
                 </p>
               </div>
@@ -315,13 +315,13 @@ export default function BlogSuggestions({
 
             {/* Empty State */}
             {!suggestions.titles && !suggestions.keywords && !suggestions.trendingTopics && !suggestions.outline && (
-              <div className="text-center py-12">
-                <p className="text-brand-gray dark:text-brand-white/70 mb-4">
+              <div className="text-center py-8 sm:py-12 lg:py-16">
+                <p className="text-sm sm:text-base lg:text-lg text-brand-gray dark:text-brand-white/70 mb-4 sm:mb-6">
                   Enter a topic above to get AI-powered suggestions
                 </p>
                 <button
                   onClick={() => fetchSuggestions('full')}
-                  className="px-4 py-2 bg-brand-blue dark:bg-brand-blue-light text-white rounded-lg hover:opacity-90 transition-opacity"
+                  className="px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 bg-brand-blue dark:bg-brand-blue-light text-white rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base lg:text-lg touch-manipulation min-h-[44px] font-medium"
                 >
                   Generate Suggestions
                 </button>

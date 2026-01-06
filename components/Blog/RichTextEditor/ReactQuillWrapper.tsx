@@ -1,29 +1,79 @@
-'use client'
+"use client";
 
-import { ComponentType, useEffect, useState, useRef } from 'react'
-import dynamic from 'next/dynamic'
+// Import polyfill FIRST before react-quill
+import "@/lib/polyfills/react-quill-finddomnode";
+
+import { ComponentType, useEffect, useState, useRef } from "react";
+import dynamic from "next/dynamic";
 
 // Create a wrapper that properly handles ReactQuill
 // Using a simple dynamic import to avoid SSR issues
 const ReactQuill = dynamic(
-  () => import('react-quill'),
-  { 
+  () => {
+    // Apply polyfill before react-quill loads
+    if (typeof window !== "undefined") {
+      try {
+        const ReactDOM = require("react-dom");
+        if (ReactDOM && !ReactDOM.findDOMNode) {
+          ReactDOM.findDOMNode = function (
+            componentOrElement: any
+          ): Element | Text | null {
+            if (componentOrElement == null) return null;
+            if (
+              componentOrElement.nodeType === 1 ||
+              componentOrElement.nodeType === 3
+            ) {
+              return componentOrElement;
+            }
+            if (componentOrElement && typeof componentOrElement === "object") {
+              if (componentOrElement.ref?.current) {
+                return componentOrElement.ref.current;
+              }
+              const fiber =
+                componentOrElement._reactInternalFiber ||
+                componentOrElement._reactInternalInstance ||
+                componentOrElement.__reactInternalInstance;
+              if (fiber) {
+                let node = fiber;
+                while (node) {
+                  if (
+                    node.stateNode?.nodeType === 1 ||
+                    node.stateNode?.nodeType === 3
+                  ) {
+                    return node.stateNode;
+                  }
+                  node = node.child || node.return;
+                }
+              }
+            }
+            return null;
+          };
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+    return import("react-quill");
+  },
+  {
     ssr: false,
     loading: () => (
       <div className="min-h-[400px] border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex items-center justify-center">
-        <div className="text-brand-gray dark:text-brand-white/70">Loading editor...</div>
+        <div className="text-brand-gray dark:text-brand-white/70">
+          Loading editor...
+        </div>
       </div>
-    )
+    ),
   }
-) as ComponentType<any>
+) as ComponentType<any>;
 
 interface ReactQuillWrapperProps {
-  value: string
-  onChange: (value: string) => void
-  modules?: any
-  formats?: string[]
-  placeholder?: string
-  theme?: string
+  value: string;
+  onChange: (value: string) => void;
+  modules?: any;
+  formats?: string[];
+  placeholder?: string;
+  theme?: string;
 }
 
 // Wrapper component that handles ReactQuill with error boundary
@@ -33,54 +83,95 @@ export default function ReactQuillWrapper({
   modules,
   formats,
   placeholder,
-  theme = 'snow',
+  theme = "snow",
 }: ReactQuillWrapperProps) {
-  const [mounted, setMounted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMounted(true)
-    
-    // Suppress findDOMNode errors in console
-    const originalError = console.error
-    console.error = (...args: any[]) => {
-      const message = String(args[0] || '')
+    // Global error handler to catch findDOMNode and Quill range errors
+    const handleError = (event: ErrorEvent) => {
+      const message = event.message || event.error?.message || "";
       if (
-        message.includes('findDOMNode') ||
-        message.includes('Warning: findDOMNode') ||
-        message.includes('react_dom_1.default.findDOMNode')
+        message.includes("findDOMNode") ||
+        message.includes("addRange") ||
+        message.includes("The given range isn't in document") ||
+        message.includes("range is not in document")
       ) {
-        // Suppress findDOMNode errors - they're warnings, not breaking errors
-        return
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
       }
-      originalError.apply(console, args)
-    }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const message = event.reason?.message || "";
+      if (
+        message.includes("findDOMNode") ||
+        message.includes("addRange") ||
+        message.includes("The given range isn't in document")
+      ) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+
+    // Suppress console errors for Quill range issues
+    const originalError = console.error;
+    console.error = (...args: any[]) => {
+      const message = String(args[0] || "");
+      if (
+        message.includes("addRange") ||
+        message.includes("The given range isn't in document") ||
+        message.includes("range is not in document") ||
+        message.includes("findDOMNode")
+      ) {
+        // Suppress these errors - they're non-breaking Quill internal issues
+        return;
+      }
+      originalError.apply(console, args);
+    };
+
+    window.addEventListener("error", handleError, true); // Use capture phase
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+    // Delay mounting to ensure console.error suppression and polyfill are in place
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 150);
 
     return () => {
-      console.error = originalError
-    }
-  }, [])
+      clearTimeout(timer);
+      window.removeEventListener("error", handleError, true);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection
+      );
+      console.error = originalError;
+    };
+  }, []);
 
   if (!mounted) {
     return (
       <div className="min-h-[400px] border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex items-center justify-center">
-        <div className="text-brand-gray dark:text-brand-white/70">Loading editor...</div>
+        <div className="text-brand-gray dark:text-brand-white/70">
+          Loading editor...
+        </div>
       </div>
-    )
+    );
   }
 
-  if (error) {
+  if (hasError) {
     return (
       <div className="min-h-[400px] border border-red-200 dark:border-red-800 rounded-lg p-4 flex flex-col items-center justify-center">
         <div className="text-red-600 dark:text-red-400 text-center">
           <p className="font-medium mb-2">Editor failed to load</p>
-          <p className="text-sm mb-4">{error}</p>
           <button
             onClick={() => {
-              setError(null)
-              setMounted(false)
-              setTimeout(() => setMounted(true), 100)
+              setHasError(false);
+              setMounted(false);
+              setTimeout(() => setMounted(true), 100);
             }}
             className="px-4 py-2 bg-brand-blue text-white rounded-lg hover:opacity-90 transition-opacity"
           >
@@ -88,19 +179,27 @@ export default function ReactQuillWrapper({
           </button>
         </div>
       </div>
-    )
+    );
   }
 
+  // Use a key based on value length to force remount if content changes dramatically
+  // This helps prevent range errors when content is replaced
+  const editorKey = `quill-${value.length > 0 ? "content" : "empty"}`;
+
+  // Render ReactQuill component
+  // Note: We can't use try-catch here as it's a render function, but errors are caught by ErrorBoundary
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="react-quill-wrapper">
       <ReactQuill
+        key={editorKey}
         theme={theme}
         value={value}
         onChange={onChange}
         modules={modules}
         formats={formats}
         placeholder={placeholder}
+        preserveWhitespace={true}
       />
     </div>
-  )
+  );
 }

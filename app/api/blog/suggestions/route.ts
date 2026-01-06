@@ -14,7 +14,7 @@ interface BlogSuggestionRequest {
   type?: 'title' | 'keywords' | 'outline' | 'full' | 'trending'
 }
 
-export async function POST(request: NextRequest) {
+async function handleRequest(request: NextRequest) {
   try {
     const supabase = await createClient()
     const {
@@ -38,7 +38,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body: BlogSuggestionRequest = await request.json()
+    // Support both GET and POST
+    let body: BlogSuggestionRequest
+    if (request.method === 'GET') {
+      const { searchParams } = new URL(request.url)
+      body = {
+        topic: searchParams.get('topic') || undefined,
+        category: searchParams.get('category') || undefined,
+        industry: searchParams.get('industry') || 'car rental',
+        type: (searchParams.get('type') as any) || 'full',
+      }
+    } else {
+      try {
+        body = await request.json()
+      } catch (e) {
+        body = {}
+      }
+    }
+    
     const { topic, category, industry = 'car rental', type = 'full' } = body
 
     // Check if OpenAI API key is configured
@@ -67,16 +84,36 @@ export async function POST(request: NextRequest) {
     console.error('Blog suggestions error:', error)
     
     // Return fallback suggestions on error
-    const body = await request.json().catch(() => ({}))
+    let fallbackBody: BlogSuggestionRequest = {}
+    if (request.method === 'GET') {
+      const { searchParams } = new URL(request.url)
+      fallbackBody = {
+        topic: searchParams.get('topic') || undefined,
+        category: searchParams.get('category') || undefined,
+        industry: searchParams.get('industry') || 'car rental',
+        type: (searchParams.get('type') as any) || 'full',
+      }
+    } else {
+      fallbackBody = await request.json().catch(() => ({}))
+    }
+    
     const fallback = getFallbackSuggestions(
-      body.topic,
-      body.category,
-      body.industry || 'car rental',
-      body.type || 'full'
+      fallbackBody.topic,
+      fallbackBody.category,
+      fallbackBody.industry || 'car rental',
+      fallbackBody.type || 'full'
     )
     
     return NextResponse.json({ suggestions: fallback })
   }
+}
+
+export async function POST(request: NextRequest) {
+  return handleRequest(request)
+}
+
+export async function GET(request: NextRequest) {
+  return handleRequest(request)
 }
 
 async function generateAISuggestions(
@@ -209,15 +246,31 @@ function parseAIResponse(response: string, type: string): any {
         }
 
       case 'trending':
-        // Try to parse trending topics
+        // Try to parse trending topics - check if it's already JSON
+        try {
+          const parsed = JSON.parse(response)
+          if (Array.isArray(parsed)) {
+            return { trendingTopics: parsed }
+          }
+          if (parsed.trendingTopics) {
+            return parsed
+          }
+          if (parsed.trending) {
+            return { trendingTopics: parsed.trending }
+          }
+        } catch {
+          // Not JSON, parse as text
+        }
+        // Try to parse trending topics from text
         return {
-          trending: response
+          trendingTopics: response
             .split('\n')
             .filter((line: string) => line.trim() && !line.match(/^#/))
             .slice(0, 10)
             .map((line: string) => ({
               title: line.replace(/^\d+\.\s*/, '').trim(),
               keywords: [],
+              reason: '',
             })),
         }
 
@@ -290,7 +343,7 @@ function getFallbackSuggestions(
 
     case 'trending':
       return {
-        trending: trendingTopics,
+        trendingTopics: trendingTopics,
       }
 
     case 'full':
