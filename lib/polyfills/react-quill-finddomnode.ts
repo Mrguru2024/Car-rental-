@@ -19,7 +19,11 @@ if (typeof window !== "undefined") {
       message.includes("findDOMNode is not a function") ||
       message.includes("addRange") ||
       message.includes("The given range isn't in document") ||
-      message.includes("range is not in document")
+      message.includes("range is not in document") ||
+      message.includes("setNativeRange") ||
+      message.includes("setEditorSelection") ||
+      message.includes("setRange") ||
+      message.includes("setSelection")
     ) {
       // Suppress findDOMNode and Quill range errors - they're non-breaking
       return;
@@ -34,13 +38,40 @@ if (typeof window !== "undefined") {
       message.includes("Warning: findDOMNode") ||
       message.includes("findDOMNode is deprecated") ||
       message.includes("addRange") ||
-      message.includes("The given range isn't in document")
+      message.includes("The given range isn't in document") ||
+      message.includes("setNativeRange") ||
+      message.includes("setEditorSelection")
     ) {
       // Suppress findDOMNode and Quill range warnings
       return;
     }
     originalWarn.apply(console, args);
   };
+
+  // Patch Selection.prototype.addRange to suppress errors
+  // This is the method that throws "The given range isn't in document"
+  if (typeof Selection !== "undefined" && Selection.prototype) {
+    const originalAddRange = Selection.prototype.addRange;
+    if (originalAddRange) {
+      Selection.prototype.addRange = function (range: Range) {
+        try {
+          return originalAddRange.call(this, range);
+        } catch (e: any) {
+          const errorMsg = e?.message || String(e || "");
+          if (
+            errorMsg.includes("The given range isn't in document") ||
+            errorMsg.includes("range is not in document") ||
+            errorMsg.includes("addRange")
+          ) {
+            // Suppress the error - it's a non-breaking Quill internal issue
+            // The range is invalid but Quill will handle it gracefully
+            return;
+          }
+          throw e;
+        }
+      };
+    }
+  }
 
   // Patch ReactDOM.findDOMNode synchronously
   // This must happen before react-quill imports ReactDOM

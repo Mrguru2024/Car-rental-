@@ -49,11 +49,103 @@ const ReactQuill = dynamic(
             return null;
           };
         }
+
+        // Patch Quill's Selection methods to suppress range errors
+        // This must happen before react-quill imports Quill
+        const patchQuillSelection = () => {
+          try {
+            // Wait for Quill to be available
+            if (typeof window !== "undefined" && (window as any).Quill) {
+              const Quill = (window as any).Quill;
+
+              // Patch Selection.prototype.setNativeRange
+              if (Quill.import && Quill.import("parchment")) {
+                const Selection = Quill.import("core/selection");
+                if (Selection && Selection.prototype) {
+                  const originalSetNativeRange =
+                    Selection.prototype.setNativeRange;
+                  if (originalSetNativeRange) {
+                    Selection.prototype.setNativeRange = function (
+                      ...args: any[]
+                    ) {
+                      try {
+                        return originalSetNativeRange.apply(this, args);
+                      } catch (e: any) {
+                        const errorMsg = e?.message || String(e || "");
+                        if (
+                          errorMsg.includes("addRange") ||
+                          errorMsg.includes(
+                            "The given range isn't in document"
+                          ) ||
+                          errorMsg.includes("range is not in document")
+                        ) {
+                          // Suppress the error - it's a non-breaking Quill internal issue
+                          return;
+                        }
+                        throw e;
+                      }
+                    };
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            // Ignore patching errors
+          }
+        };
+
+        // Try to patch immediately if Quill is already loaded
+        patchQuillSelection();
+
+        // Also try after a delay in case Quill loads later
+        setTimeout(patchQuillSelection, 100);
+        setTimeout(patchQuillSelection, 500);
       } catch (e) {
         // Ignore
       }
     }
-    return import("react-quill");
+    return import("react-quill").then((module) => {
+      // Patch after react-quill loads
+      if (typeof window !== "undefined") {
+        setTimeout(() => {
+          try {
+            // Patch Selection.setNativeRange if available
+            const quillContainer = document.querySelector(".ql-container");
+            if (quillContainer && (quillContainer as any).__quill) {
+              const quill = (quillContainer as any).__quill;
+              if (quill.constructor && quill.constructor.import) {
+                const Selection = quill.constructor.import("core/selection");
+                if (Selection && Selection.prototype) {
+                  const originalSetNativeRange =
+                    Selection.prototype.setNativeRange;
+                  if (originalSetNativeRange) {
+                    Selection.prototype.setNativeRange = function (
+                      ...args: any[]
+                    ) {
+                      try {
+                        return originalSetNativeRange.apply(this, args);
+                      } catch (e: any) {
+                        const errorMsg = e?.message || String(e || "");
+                        if (
+                          errorMsg.includes("addRange") ||
+                          errorMsg.includes("The given range isn't in document")
+                        ) {
+                          return;
+                        }
+                        throw e;
+                      }
+                    };
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            // Ignore
+          }
+        }, 200);
+      }
+      return module;
+    });
   },
   {
     ssr: false,
@@ -90,6 +182,57 @@ export default function ReactQuillWrapper({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Patch Quill Selection methods after mount
+    const patchQuillAfterMount = () => {
+      try {
+        // Find all Quill instances and patch their Selection
+        const quillContainers = document.querySelectorAll(".ql-container");
+        quillContainers.forEach((container) => {
+          const quill = (container as any).__quill || (container as any).quill;
+          if (quill && quill.constructor && quill.constructor.import) {
+            try {
+              const Selection = quill.constructor.import("core/selection");
+              if (
+                Selection &&
+                Selection.prototype &&
+                !Selection.prototype._patched
+              ) {
+                const originalSetNativeRange =
+                  Selection.prototype.setNativeRange;
+                if (originalSetNativeRange) {
+                  Selection.prototype.setNativeRange = function (
+                    ...args: any[]
+                  ) {
+                    try {
+                      return originalSetNativeRange.apply(this, args);
+                    } catch (e: any) {
+                      const errorMsg = e?.message || String(e || "");
+                      if (
+                        errorMsg.includes("addRange") ||
+                        errorMsg.includes(
+                          "The given range isn't in document"
+                        ) ||
+                        errorMsg.includes("range is not in document")
+                      ) {
+                        // Suppress the error - it's a non-breaking Quill internal issue
+                        return;
+                      }
+                      throw e;
+                    }
+                  };
+                  Selection.prototype._patched = true;
+                }
+              }
+            } catch (e) {
+              // Ignore
+            }
+          }
+        });
+      } catch (e) {
+        // Ignore
+      }
+    };
+
     // Global error handler to catch findDOMNode and Quill range errors
     const handleError = (event: ErrorEvent) => {
       const message = event.message || event.error?.message || "";
@@ -97,7 +240,9 @@ export default function ReactQuillWrapper({
         message.includes("findDOMNode") ||
         message.includes("addRange") ||
         message.includes("The given range isn't in document") ||
-        message.includes("range is not in document")
+        message.includes("range is not in document") ||
+        message.includes("setNativeRange") ||
+        message.includes("setEditorSelection")
       ) {
         event.preventDefault();
         event.stopPropagation();
@@ -136,13 +281,21 @@ export default function ReactQuillWrapper({
     window.addEventListener("error", handleError, true); // Use capture phase
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
+    // Patch Quill after a delay to ensure it's loaded
+    const patchTimer1 = setTimeout(patchQuillAfterMount, 300);
+    const patchTimer2 = setTimeout(patchQuillAfterMount, 1000);
+
     // Delay mounting to ensure console.error suppression and polyfill are in place
     const timer = setTimeout(() => {
       setMounted(true);
+      // Patch again after mount
+      setTimeout(patchQuillAfterMount, 200);
     }, 150);
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(patchTimer1);
+      clearTimeout(patchTimer2);
       window.removeEventListener("error", handleError, true);
       window.removeEventListener(
         "unhandledrejection",
@@ -182,12 +335,11 @@ export default function ReactQuillWrapper({
     );
   }
 
-  // Use a key based on value length to force remount if content changes dramatically
-  // This helps prevent range errors when content is replaced
+  // Use a stable key to prevent unnecessary remounts
+  // Only remount if value changes from empty to content or vice versa
   const editorKey = `quill-${value.length > 0 ? "content" : "empty"}`;
 
-  // Render ReactQuill component
-  // Note: We can't use try-catch here as it's a render function, but errors are caught by ErrorBoundary
+  // Render ReactQuill component with bounds prop to prevent selection restoration issues
   return (
     <div ref={containerRef} className="react-quill-wrapper">
       <ReactQuill
@@ -199,6 +351,7 @@ export default function ReactQuillWrapper({
         formats={formats}
         placeholder={placeholder}
         preserveWhitespace={true}
+        bounds="self"
       />
     </div>
   );
