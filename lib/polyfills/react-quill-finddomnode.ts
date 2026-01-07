@@ -23,7 +23,9 @@ if (typeof window !== "undefined") {
       message.includes("setNativeRange") ||
       message.includes("setEditorSelection") ||
       message.includes("setRange") ||
-      message.includes("setSelection")
+      message.includes("setSelection") ||
+      message.includes("Cannot import core/selection") ||
+      message.includes("Are you sure it was registered")
     ) {
       // Suppress findDOMNode and Quill range errors - they're non-breaking
       return;
@@ -40,7 +42,9 @@ if (typeof window !== "undefined") {
       message.includes("addRange") ||
       message.includes("The given range isn't in document") ||
       message.includes("setNativeRange") ||
-      message.includes("setEditorSelection")
+      message.includes("setEditorSelection") ||
+      message.includes("Cannot import core/selection") ||
+      message.includes("Are you sure it was registered")
     ) {
       // Suppress findDOMNode and Quill range warnings
       return;
